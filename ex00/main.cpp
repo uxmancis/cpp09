@@ -6,7 +6,7 @@
 /*   By: uxmancis <uxmancis>                        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/23 11:52:25 by uxmancis          #+#    #+#             */
-/*   Updated: 2025/10/28 10:59:45 by uxmancis         ###   ########.fr       */
+/*   Updated: 2025/10/28 14:19:17 by uxmancis         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,6 +16,13 @@
 // #include <cstdio.h> //open
 #include <string> //std::stoi
 #include <cstdlib> //std::stoi
+#include <climits> //INT_MAX, INT_MIN
+
+enum what_to_print
+{
+    PRINT_ERROR, /* DO print errors*/
+    DO_NOT_PRINT /* Do NOT print errors */
+};
 
 /* isValidDate
 *
@@ -25,19 +32,21 @@
 *       true -> Valid date
 *       false -> Invalid date
 */
-bool isValidDate(std::string date)
+
+// bool isValidDate(std::string date, std::map<std::string, float> myMap)
+bool isValidDate(std::string date, what_to_print instruction)
 {
     /* Year */
     int year = atoi(date.substr(0,4).c_str()); //substr(where to start, how many chars to get)
-    std::cout << "Year: " << year << std::endl;
+    // std::cout << "Year: " << year << std::endl;
 
     /* Month */
     int month = atoi(date.substr(5,2).c_str()); //substr(where to start, how many chars to get)
-    std::cout << "month: " << month << std::endl;
+    // std::cout << "month: " << month << std::endl;
 
     /* Day */
     int day = atoi(date.substr(8,2).c_str());;
-    std::cout << "day: " << day << std::endl;
+    // std::cout << "day: " << day << std::endl;
 
     /* Invalid date - Generic */
     if (year < 0 || year > 2100
@@ -45,7 +54,10 @@ bool isValidDate(std::string date)
         || date[4] != '-' || date[7] != '-'
         || day < 1 || day > 31)
     {
-        std::cerr << "Error: bad input" <<  " => " << date << std::endl;
+        if (instruction == PRINT_ERROR)
+        {
+            std::cerr << "Error: bad input" <<  " => " << date << std::endl;
+        }        
         return(false);
     }
     
@@ -54,7 +66,10 @@ bool isValidDate(std::string date)
     {
         if (day > 28)
         {
-            std::cerr << "Error: bad input" <<  " => " << date << std::endl;
+            if (instruction == PRINT_ERROR)
+            {
+                std::cerr << "Error: bad input" <<  " => " << date << std::endl;
+            }    
             return(false);
         }
     }
@@ -69,58 +84,72 @@ bool isValidDate(std::string date)
 *       true -> Valid value
 *       false -> Invalid value
 */
-bool isValidValue(std::string v)
+bool isValidValue(std::string v, what_to_print instruction)
 {
-    std::cout << "----------------------------" << std::endl;
-    std::cout << "isValidValue, Value = " << v << std::endl;
-    std::cout << "size = " << v.size() << std::endl;
-    
-    if (v.size() > 10) /* Cuidado! 10 is max int */
-    {
-        std::cout << "Error: too large a number." << std::endl;
-        return (false);
-    }
-        
+    // std::cout << "----------------------------" << std::endl;
+    // std::cout << "isValidValue, Value = " << v << std::endl;
+    // std::cout << "size = " << v.size() << std::endl;
 
     long int value = atoi(v.c_str());
-
-    
-
     /* Negative values are not accepted */
     if (value < 0)
     {
-        std::cout << "Error: not a positive number." << std::endl;
+        if (instruction == PRINT_ERROR)
+        {
+            std::cout << "Error: not a positive number." << std::endl;
+        }    
         return (false);
     }
-        
-        
-    std::cout << "Valueeee :) = " << value << std::endl;
-    return (true);
+    /* Valid values are positive and in INT range */
+    if (value > -1 && value < INT_MAX)
+    {
+        // std::cout << "Value is in INT range." << std::endl;
+        return (true);
+    }
+    else
+    {
+        if (instruction == PRINT_ERROR)
+        {
+            std::cout << "Error: too large a number." << std::endl;
+        }   
+        return (false);
+    }
 }
 
-void validLine(std::string line, std::map<std::string, float> result)
+/* validLine
+*
+*   Checks if both date and value in line are valid.
+*
+*   Returns:
+*       true -> Both date and value are valid
+*       false -> Either date or value is invalid
+*/
+
+// int validLine(std::string line, std::map<std::string, float> myMap)
+int validLine(std::string line, what_to_print instruction)
 {
-    (void)result;
+    bool isDateValid = false;
+    bool isValueValid = false;
     /* Line Info: */
-    std::cout << "Line = " << line << std::endl;
-    std::cout << "Size: " << line.size() << std::endl;
+    // std::cout << "Line = " << line << std::endl;
+    // std::cout << "Size: " << line.size() << std::endl;
     
     if (line.size() >= 10)
     {
         std::string date = line.substr(0,10); //get date
-        std::cout << "Date: " << date << std::endl;
-        isValidDate(date); /* prints invalid line errors */
+        // std::cout << "Date: " << date << std::endl;
+        isDateValid = isValidDate(date, instruction); /* prints invalid line errors */
+        // isDateValid = isValidDate(date, myMap); /* prints invalid line errors */
     }
-
     if (line.size() >= 12)
     {
         std::string value = line.substr(13); //get date
-        std::cout << "Value: " << value << std::endl;
-        isValidValue(value);
+        // std::cout << "Value: " << value << std::endl;
+        isValueValid = isValidValue(value, instruction); /* prints invalid line errors */
     }
-
-    std::cout << "----------------------\n" << std::endl;
-    // std::string value = 
+    if (isDateValid && isValueValid) /* When Date and Value both are valid */
+        return (true);
+    return (false);
 }
 
 int main(int argc, char **argv)
@@ -146,33 +175,52 @@ int main(int argc, char **argv)
 
     /* Put Result */ 
     std::string line;
-    std::map<std::string, float> result;
+    std::map<std::string, float> myMap;
+    // std::map<std::string, float>::const_iterator it = myMap.begin();
+    
+    // int i = 0; //Used to ignore 1st line
 
-    while(getline(file, line)) //Iteration in each line
+    getline(file, line); /* 1st time using = a way to ignore first line: "date | value" */
+    myMap.insert(std::make_pair("", 0));
+    myMap.insert(std::make_pair("", 0));
+
+    std::pair<std::map<std::string, float>::iterator, bool> result;
+    while(getline(file, line)/* && it!= myMap.end()*/) //Iteration in each line
     {
-        if (line != "date | value") /* "date | value" 1st line is ignored. */
-            validLine(line, result);
-            //print
-        // std::string date = line.substr(0,10);
-        // std::string value = line.substr(12);
-        // // std::cout << "Line 1: " << line << std::endl;
-        // std::cout << date << " => " << value << std::endl;
+        // if (i == 0) /* Ignores first line: "date | value" */
+        //     i++;
+        // else
+        // {
+        // std::cout << "Processing line: " << line << std::endl;
+        // if (valid)    
+        
+        
+        
+        if (validLine(line, DO_NOT_PRINT)) /* When not valid, already prints errors */
+        {
+            // std::cout << "VALID line|";
+            
+            /* Inserts new element to map */
+            result = myMap.insert(std::make_pair(line, 3.5)); /* .insert() method returns pair<iterator, bool> */
+            // myMap.insert(std::make_pair(line, 3.5)); 
+            
+            /* Restarts it to map beginning */
+            // it = myMap.begin();
+            // it++;
+            std::cout << result.first->first << " " << result.first->second << std::endl; //PRINT HERE
+        }
+        else
+        {
+            validLine(line, PRINT_ERROR); /* prints errors */
+            // std::cout << "INVALID line" << std::endl;
+        }
+        // if (it == myMap.end())
+        //     break;
+        
+        // it++;
+        // std::cout << it->first << " " << it->second << std::endl; //PRINT HERE
     }
 
     
-    char c = file.get();
-    
-    while (file.good())
-    {
-        std::cout << c;
-        c = file.get();
-        std::cout << "=> ";
-    }
-    file.close();
-
-    
-    
-    
-
     return (0);
 }
