@@ -6,7 +6,7 @@
 #    By: uxmancis <uxmancis>                        +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2025/10/23 11:47:11 by uxmancis          #+#    #+#              #
-#    Updated: 2025/10/23 11:48:50 by uxmancis         ###   ########.fr        #
+#    Updated: 2025/10/28 18:28:16 by uxmancis         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -16,6 +16,7 @@ CFLAGS = -Wall -Wextra -Werror -std=c++98 -fsanitize=address -g3
 
 # Source files and object files
 SRC =	main.cpp\
+		BitcoinExchange.cpp
 
 OBJ = $(SRC:.cpp=.o)
 
