@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   BitcoinExchange.hpp                                :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: uxmancis <uxmancis>                        +#+  +:+       +#+        */
+/*   By: uxuemancisidorlaskurain <uxuemancisidor    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/28 18:22:43 by uxmancis          #+#    #+#             */
-/*   Updated: 2025/10/29 11:21:45 by uxmancis         ###   ########.fr       */
+/*   Updated: 2025/10/29 17:37:07 by uxuemancisi      ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -34,10 +34,12 @@ enum what_to_print
     DO_NOT_PRINT /* Do NOT print errors */
 };
 
-/* Functions in BitcoinExchange.cpp file*/
+/* BitcoinExchange.cpp file*/
 std::string getClosestValue(std::ifstream &dbFile, std::string dateInput);
 float       getValueInDate (std::string line);
 float       getTotalValue (std::string line);
+
+/* main.cpp file */
 bool        isValidDate(std::string date, what_to_print instruction);
 bool        isValidValue(std::string valueStr, what_to_print instruction);
 bool        validLine(std::string line, what_to_print instruction);
