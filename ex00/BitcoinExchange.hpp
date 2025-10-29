@@ -6,7 +6,7 @@
 /*   By: uxmancis <uxmancis>                        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/28 18:22:43 by uxmancis          #+#    #+#             */
-/*   Updated: 2025/10/28 19:44:45 by uxmancis         ###   ########.fr       */
+/*   Updated: 2025/10/29 11:21:45 by uxmancis         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,6 +24,8 @@
 #define GREEN "\033[32m"
 #define RED "\033[0m"
 #define CYAN "\033[36m"
+#define PINK "\033[35m"
+#define YELLOW "\033[33m"
 #define RESET_COLOUR "\033[0m"
 
 enum what_to_print

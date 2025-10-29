@@ -6,36 +6,168 @@
 /*   By: uxmancis <uxmancis>                        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/28 18:24:02 by uxmancis          #+#    #+#             */
-/*   Updated: 2025/10/28 19:45:07 by uxmancis         ###   ########.fr       */
+/*   Updated: 2025/10/29 14:00:27 by uxmancis         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "BitcoinExchange.hpp"
 
+/* yearMonthExistsInDB
+*
+*   The function tell us whether if there is a line that meets the following criteria:
+*       1) Same YEAR as dateInput
+*       2) Same MONTH as dateInput
+*       3) Lower DAY than dateInput => we can use it :)
+*
+*   Returns:
+*       true: YES YYYY-MM was found
+*       false: NO YYYY-MM was NOT found
+*
+*/
+bool yearMonthExistsInDB (std::ifstream &dbFile, std::string dateInput)
+{
+    dbFile.clear();
+    dbFile.seekg(0, std::ios::beg); /* Moves the poointer to the beginning */
+
+    /* Original dateInput: */
+    unsigned int yrInput = atoi(dateInput.substr(0,4).c_str());
+    unsigned int moInput = atoi(dateInput.substr(5,2).c_str());
+    unsigned int dayInput = atoi(dateInput.substr(8,2).c_str());;
+    std::cout << CYAN "[INPUTDATE]" RESET_COLOUR " yrDB = " << yrInput << ", mo = " << moInput << ", dayDB = " << dayInput << std::endl;
+
+    
+    std::string dbLine;
+    std::string closestDbLine;
+    unsigned int yrDB;
+    unsigned int moDB;
+    unsigned int dayDB;
+    
+    // unsigned int dayClosest = dayInput;
+    while(getline(dbFile, dbLine))
+    {
+        /* Get date from DB */
+        yrDB = atoi(dbLine.substr(0,4).c_str());
+        moDB = atoi(dbLine.substr(5,2).c_str());
+        dayDB = atoi(dbLine.substr(8,2).c_str());
+
+        if (yrDB == yrInput && moDB == moInput && dayDB < dayInput)
+            return (true);
+    }
+    return (false); /* year-month NOT found in DB */
+
+}
+
+
+/* getClosestDateSameMoth
+*
+*   We call getClosestDateSameMonth when we already now that YES there IS some line in DB 
+*   that meets criteria predefined in yearMonthExistsInDB.
+*
+*   Returns: 
+*       dbLine: when Successful
+*       NOT_FOUND: when failure
+*
+*/
+std::string getClosestDateSameMonth (std::ifstream &dbFile, std::string dateInput)
+{
+    std::cout << YELLOW "Case A | dateInput = " << dateInput << RESET_COLOUR << std::endl;
+
+    /* Original dateInput: */
+    unsigned int dayInput = atoi(dateInput.substr(8,2).c_str());; /* we'll use it as a reference */
+    (void) dayInput;
+
+
+    /* We'll go find day [0 - dayInput] in already defined month and year */
+    unsigned reference_yr = atoi(dateInput.substr(0,4).c_str());
+    unsigned reference_mo = atoi(dateInput.substr(5,2).c_str());
+    unsigned reference_day = atoi(dateInput.substr(8,2).c_str());
+    std::cout << PINK << "Reference = " << reference_yr << "-" << reference_mo << "-" << reference_day << RESET_COLOUR << std::endl;
+
+    std::string dbLine;
+    unsigned int yrDB;
+    unsigned int moDB;
+    unsigned int dayDB;
+
+    unsigned int closestDay = reference_day - 1;
+    /* Let's go verify which is the first number we find getting lower from dayInput, it will iterate n times. N = possibilities [0-dayInput]*/
+    /* Each possibility = check whole file */
+    /* In order inner conditional to match, closestDay already defined as framework so that firs time conditional matches that's the line we wanna get :) */
+    while (closestDay > 0)
+    {
+        while(getline(dbFile, dbLine)) /* Reads 100% DB. Once condition matches, returns dbLine.*/
+        {
+            /* Get date from DB */
+            yrDB = atoi(dbLine.substr(0,4).c_str());
+            moDB = atoi(dbLine.substr(5,2).c_str());
+            dayDB = atoi(dbLine.substr(8,2).c_str());
+
+            /* C*/
+            if (yrDB == reference_yr && moDB == reference_mo && dayDB == closestDay)
+                return (dbLine);
+        }
+        /* So that we can start read again from the beginning of the file :)*/
+        dbFile.clear();
+        dbFile.seekg(0, std::ios::beg); /* Moves the poointer to the beginning */
+        
+        closestDay--;
+    }
+    return ("NOT_FOUND");
+}
+
+/* isLineSameYear
+*
+*   Checks whether if there is any line in data.csv that matches the following
+*   criteria:
+*       1) SAME year as dateInput
+*       2) SAME or EARLIER month as dateInput
+*/
+bool isLineSameYear (std::ifstream &dbFile, std::string dateInput)
+{
+    unsigned reference_yr = atoi(dateInput.substr(0,4).c_str());
+    unsigned reference_mo = atoi(dateInput.substr(5,2).c_str());
+
+    std::string dbLine;
+    unsigned yrDB;
+    unsigned moDB;
+    while(getline(dbFile, dbLine))
+    {
+        /* Get date from DB */
+        yrDB = atoi(dbLine.substr(0,4).c_str());
+        moDB = atoi(dbLine.substr(0,4).c_str());
+        
+        if (yrDB == reference_yr && moDB <= reference_mo)
+            return (true);
+    }
+    return (false);
+}
+
 /* Gets lower date which is the closest */
 std::string getClosestValue(std::ifstream &dbFile, std::string dateInput)
 {
-    std::cout << "HERE WE ARE " << std::endl;
-    // int year2find = atoi(dateInput.substr(0,4).c_str());
-    // int month2find = atoi(dateInput.substr(5,2).c_str());
-    // int day2find = atoi(dateInput.substr(8,2).c_str());;
-
-    //year 1
-        //is there closer month? No? up to low in months, until next year
-    //year 0
-    //year -1
-
+    // std::string dbLine = yearMonthExistsInDB(dbFile, dateInput);
     std::string dbLine;
-    while(getline(dbFile, dbLine))
+
+    if (yearMonthExistsInDB(dbFile, dateInput)) /* Yes there is sameYYYY-sameMM-LowerDay*/
     {
-        int yrDB = atoi(dateInput.substr(0,4).c_str());
-        int moDB = atoi(dateInput.substr(5,2).c_str());
-        int dayDB = atoi(dateInput.substr(8,2).c_str());;
-        std::cout << CYAN "[DBLINE]" RESET_COLOUR " yrDB = " << yrDB << ", mo = " << moDB << ", dayDB = " << dayDB << std::endl;
+        std::cout << "CASE A --> Same YEAR and MONTH" << std::endl;
+        dbLine = getClosestDateSameMonth(dbFile, dateInput); /* Which one is it? */
     }
-    (void) dbFile;
-    (void) dateInput;
-    return ("kaixo");
+        
+    else if (isLineSameYear(dbFile, dateInput)) /* Yes there is sameYYYY*/
+    {
+        std::cout << "CASE B --> Same YEAR" << std::endl;
+        // dbLine = /* Which one is it? */
+    }
+    else /* There is NO line same year */
+    {
+        std::cout << "CASE C --> DIFFERENT YEAR " << std::endl;
+        /* #1 Is there any date earlier? If no, error message */
+        /* #2 If yes, which one is it? */
+    }
+
+    std::cout << RED << "dbLine = " << dbLine << RESET_COLOUR << std::endl;
+
+    return (dbLine);
 }
 
 float getValueInDate (std::string line)
@@ -60,21 +192,22 @@ float getValueInDate (std::string line)
         // std::cout << "dateInput = " << dateInput << std::endl;
         // std::cout << "dbLine = " << dbLine << std::endl;
         if (dbLine.substr(0,10).c_str() == dateInput) /* Yes this is the exact day! */
-            bitcoinValueInDate = atoi(dbLine.substr(12).c_str());
+            bitcoinValueInDate = atof(dbLine.substr(11).c_str());
     }
 
     if (bitcoinValueInDate == -1)
     {
         std::cout << RED << "❌ Date not found" RESET_COLOUR << std::endl;
         dbLine = getClosestValue(dbFile, dateInput);
+        std::cout << YELLOW << "dbLine = " << dbLine << RESET_COLOUR  << std::endl;
+        bitcoinValueInDate = atof(dbLine.substr(11).c_str());
     }
     else
     {
         std::cout << GREEN << "✅ Date found: " << dateInput <<  RESET_COLOUR << std::endl;
         std::cout << "bitcoinValueInDate = " << bitcoinValueInDate << std::endl;
     }
-        
-
+    // std::cout << "Returned bitcoinValueInDate = " << bitcoinValueInDate << std::endl;
     return (bitcoinValueInDate);
 }
 

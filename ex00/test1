@@ -1,0 +1,78 @@
+
+
+getTotalValue ------------------------ 
+howManyBitcoins = 3
+[0m❌ Date not found[0m
+[36mHERE WE ARE [0m
+[36m[INPUTDATE][0m yrDB = 2009, mo = 1, dayDB = 3
+[35mLine: [0m
+> Bitcoin's value we'll use: [36m-1[0m
+-----------------------------------
+
+ 
+[36m[LINE] [0m2009-01-03 => 3 = -3
+
+
+getTotalValue ------------------------ 
+howManyBitcoins = 2
+[0m❌ Date not found[0m
+[36mHERE WE ARE [0m
+[36m[INPUTDATE][0m yrDB = 2008, mo = 1, dayDB = 3
+[35mLine: [0m
+> Bitcoin's value we'll use: [36m-1[0m
+-----------------------------------
+
+ 
+[36m[LINE] [0m2008-01-03 => 2 = -2
+
+
+getTotalValue ------------------------ 
+howManyBitcoins = 1
+[0m❌ Date not found[0m
+[36mHERE WE ARE [0m
+[36m[INPUTDATE][0m yrDB = 2011, mo = 1, dayDB = 3
+[35mLine: [0m
+> Bitcoin's value we'll use: [36m-1[0m
+-----------------------------------
+
+ 
+[36m[LINE] [0m2011-01-03 => 1 = -1
+
+
+getTotalValue ------------------------ 
+howManyBitcoins = 1
+[0m❌ Date not found[0m
+[36mHERE WE ARE [0m
+[36m[INPUTDATE][0m yrDB = 2009, mo = 1, dayDB = 3
+[35mLine: [0m
+> Bitcoin's value we'll use: [36m-1[0m
+-----------------------------------
+
+ 
+[36m[LINE] [0m2009-01-03 => 1.2 = -1
+
+
+getTotalValue ------------------------ 
+howManyBitcoins = 1
+[0m❌ Date not found[0m
+[36mHERE WE ARE [0m
+[36m[INPUTDATE][0m yrDB = 2011, mo = 1, dayDB = 9
+[35mLine: [0m
+> Bitcoin's value we'll use: [36m-1[0m
+-----------------------------------
+
+ 
+[36m[LINE] [0m2011-01-09 => 1 = -1
+Error: not a positive number.
+
+
+getTotalValue ------------------------ 
+howManyBitcoins = 1
+[32m✅ Date found: 2012-01-11[0m
+bitcoinValueInDate = 7.1
+> Bitcoin's value we'll use: [36m7.1[0m
+-----------------------------------
+
+ 
+[36m[LINE] [0m2012-01-11 => 1.5 = 7.1
+Error: not a positive number.
