@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   BitcoinExchange.cpp                                :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: uxuemancisidorlaskurain <uxuemancisidor    +#+  +:+       +#+        */
+/*   By: uxmancis <uxmancis>                        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/28 18:24:02 by uxmancis          #+#    #+#             */
-/*   Updated: 2025/10/29 20:38:04 by uxuemancisi      ###   ########.fr       */
+/*   Updated: 2025/10/30 12:22:08 by uxmancis         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -113,7 +113,7 @@ std::string getClosestDateSameMonth (std::ifstream &dbFile, std::string dateInpu
             /* C*/
             if (yrDB == reference_yr && moDB == reference_mo && dayDB == closestDay)
             {
-                std::cout << GREEN "[MATCH FOUND] " RESET_COLOUR << std::endl;
+                // std::cout << GREEN "[MATCH FOUND] " RESET_COLOUR << std::endl;
                 return (dbLine);
             }
             // if (i == 10)
@@ -140,16 +140,23 @@ bool isLineSameYear (std::ifstream &dbFile, std::string dateInput)
 {
     unsigned reference_yr = atoi(dateInput.substr(0,4).c_str());
     unsigned reference_mo = atoi(dateInput.substr(5,2).c_str());
+    // std::cout << CYAN "RefYr = " << reference_yr << ", RefMo = " << reference_mo << RESET_COLOUR << std::endl;
 
     std::string dbLine;
     unsigned yrDB;
     unsigned moDB;
+
+    /* We make sure we can read again the file */
+    dbFile.clear();
+    dbFile.seekg(0, std::ios::beg); /* Moves the poointer to the beginning */
+    
     while(getline(dbFile, dbLine))
     {
         /* Get date from DB */
         yrDB = atoi(dbLine.substr(0,4).c_str());
-        moDB = atoi(dbLine.substr(0,4).c_str());
+        moDB = atoi(dbLine.substr(5,2).c_str());
         
+        // std :: cout << YELLOW << "yrDB = " << yrDB << ", moDB = " << moDB << RESET_COLOUR << std::endl;
         if (yrDB == reference_yr && moDB <= reference_mo)
             return (true);
     }
@@ -159,7 +166,7 @@ bool isLineSameYear (std::ifstream &dbFile, std::string dateInput)
 unsigned int getChosenYear(std::ifstream &dbFile, std::string dateInput)
 {
     unsigned int chosenYear = atoi(dateInput.substr(0,4).c_str()) - 1; /* Set to max possible */
-    std::cout << YELLOW "chosenYear = " << chosenYear << RESET_COLOUR << std::endl;
+    // std::cout << YELLOW "chosenYear = " << chosenYear << RESET_COLOUR << std::endl;
 
     std::string dbLine;
     unsigned int yrDB;
@@ -198,11 +205,11 @@ unsigned int getChosenYear(std::ifstream &dbFile, std::string dateInput)
     /* Chosen year: */
     // std::cout << "chosenYear = " << chosenYear << std::endl;
     // chosenYear = atoi(dbLine.substr(0,4).c_str());
-    std::cout << "/// chosenYear = " << chosenYear << std::endl;
+    // std::cout << "/// chosenYear = " << chosenYear << std::endl;
     return (chosenYear);
 }
 
-unsigned int getChosenMonth(std::ifstream &dbFile, unsigned int chosenYear)
+unsigned int getChosenMonth(std::ifstream &dbFile, std::string dateInput, unsigned int chosenYear)
 {
     bool found;
     std::string dbLine;
@@ -211,27 +218,30 @@ unsigned int getChosenMonth(std::ifstream &dbFile, unsigned int chosenYear)
     
     /* The chosenYear is already diff from dateInput. Then, month can be any, literally [0-12]. We'll choose the latest :) */
     /* Objective of the loop: to chooseMonth */
+    unsigned int refMo = atoi(dateInput.substr(5,2).c_str());
+    // std::cout << "refMo = " << refMo << std::endl;
     unsigned int chosenMonth = 12;
     found = false;
 
     /* We make sure we can read again the file */
     dbFile.clear();
     dbFile.seekg(0, std::ios::beg); /* Moves the poointer to the beginning */
-    
+    int i = 10;
     while (chosenMonth > 0 && !found)
     {
-        while(getline(dbFile, dbLine))
+        while(getline(dbFile, dbLine)  && i > 0 ) /* i is temp, later should be erased from all loops */
         {
             /* Get dateInput */
             yrDB = atoi(dbLine.substr(0,4).c_str());
             moDB = atoi(dbLine.substr(5,2).c_str());
 
-            if (yrDB == chosenYear && moDB == chosenMonth)
+            // std::cout << "yrDB = " << yrDB << ", moDB = " << moDB << "| chosenYr = " << chosenYear << ", refMo = " << refMo << ", chosenMonth (it) = "<<  chosenMonth << std::endl;
+            if (yrDB == chosenYear /*&& moDB == chosenMonth*/ && moDB < refMo)
             {
                 found = true;
                 break;
             }
-                
+            i--;
         }
         if (!found)
             chosenMonth--;
@@ -245,7 +255,7 @@ unsigned int getChosenMonth(std::ifstream &dbFile, unsigned int chosenYear)
 
 unsigned int getChosenDay(std::ifstream &dbFile, unsigned int chosenYear, unsigned int chosenMonth)
 {
-    bool found;
+    bool found = false;
     std::string dbLine;
     unsigned int yrDB;
     unsigned int moDB;
@@ -257,25 +267,38 @@ unsigned int getChosenDay(std::ifstream &dbFile, unsigned int chosenYear, unsign
 
     /* YEAR and MONTH are already chosen. Finally, let's choose the latest DAY :),  lit can be [0-31] :) */
     unsigned int chosenDay = 31;
-    found = false; 
+    // int i = 10;
     while (chosenDay > 0 && !found)
     {
-        while (getline(dbFile, dbLine))
+        /* We make sure we can read again the file */
+        dbFile.clear();
+        dbFile.seekg(0, std::ios::beg); /* Moves the poointer to the beginning */
+
+        while (getline(dbFile, dbLine)/* && i > 0*/ )
         {
             /* Get dateInput */
             yrDB = atoi(dbLine.substr(0,4).c_str());
             moDB = atoi(dbLine.substr(5,2).c_str());
             dayDB = atoi(dbLine.substr(8,2).c_str());
 
+            // std::cout << "-> dbLinke = " << dbLine << std::endl;
+            // if (yrDB == 2011 && moDB == 2 && dayDB == 27)
+            //     std::cout << "DB = " << dbLine << "| dayDB = " << dayDB << "| chosenDay = " << chosenDay << std::endl;
             if (yrDB == chosenYear && moDB == chosenMonth && dayDB == chosenDay)
             {
                 found = true;
                 break;
             }
+            // i --;
                 
         }
         if (!found)
+        {
             chosenDay--;
+            // std::cout << "///////////////////// chosenDay = " << chosenDay << std::endl;
+        }
+        // i--;
+            
     }
     return (chosenDay);
 }
@@ -294,8 +317,8 @@ std::string getClosestDate_diffYear (std::ifstream &dbFile, std::string dateInpu
     (void) dbFile;
     (void) dateInput;
 
-    std::cout << YELLOW "getClosestDate_diffYear" RESET_COLOUR << std::endl;
-    std::cout << YELLOW "dateInput = " << dateInput << RESET_COLOUR << std::endl;
+    // std::cout << YELLOW "getClosestDate_diffYear" RESET_COLOUR << std::endl;
+    // std::cout << YELLOW "dateInput = " << dateInput << RESET_COLOUR << std::endl;
 
     std::string dbLine;
     
@@ -307,15 +330,15 @@ std::string getClosestDate_diffYear (std::ifstream &dbFile, std::string dateInpu
 
     /* chosenYear is defined */
     unsigned int chosenYear = getChosenYear(dbFile, dateInput);
-    std::cout << "/// chosenYear = " << chosenYear << std::endl;
+    // std::cout << "/// chosenYear = " << chosenYear << std::endl;
 
     /* chosenMonth is defined*/
-    unsigned int chosenMonth = getChosenMonth(dbFile, chosenYear);
-    std::cout << "///chosenMonth = " << chosenMonth << std::endl;
+    unsigned int chosenMonth = getChosenMonth(dbFile, dateInput, chosenYear);
+    // std::cout << "///chosenMonth = " << chosenMonth << std::endl;
 
     /* chosenDay is defined*/
     unsigned int chosenDay = getChosenDay(dbFile, chosenYear, chosenMonth);
-    std::cout << "///chosenDay = " << chosenDay << std::endl;
+    // std::cout << "///chosenDay = " << chosenDay << std::endl;
 
     /* We make sure we can read again the file */
     dbFile.clear();
@@ -331,7 +354,7 @@ std::string getClosestDate_diffYear (std::ifstream &dbFile, std::string dateInpu
             break;
     }
 
-    std::cout << YELLOW "/////////////// dbLine = " << dbLine << std::endl;
+    // std::cout << YELLOW "/////////////// dbLine = " << dbLine << std::endl;
     return (dbLine);
 }
 
@@ -342,16 +365,19 @@ std::string getClosestDate_diffMonth(std::ifstream &dbFile, std::string dateInpu
     unsigned int moDB;
     unsigned int dayDB;
 
+    // std::cout << "dateInput = " << dateInput << std::endl;
+
     /* Year is already decided */
     unsigned int chosenYear = atoi(dateInput.substr(0,10).c_str());
+    // std::cout << CYAN "✅chosenYear = " << chosenYear << RESET_COLOUR << std::endl;
     
     /* chosenMonth is defined*/
-    unsigned int chosenMonth = getChosenMonth(dbFile, chosenYear);
-    std::cout << "///chosenMonth = " << chosenMonth << std::endl;
+    unsigned int chosenMonth = getChosenMonth(dbFile, dateInput, chosenYear);
+    // std::cout << "✅chosenMonth = " << chosenMonth << std::endl;
 
     /* chosenDay is defined*/
     unsigned int chosenDay = getChosenDay(dbFile, chosenYear, chosenMonth);
-    std::cout << "///chosenDay = " << chosenDay << std::endl;
+    // std::cout << "✅chosenDay = " << chosenDay << std::endl;
 
     /* We make sure we can read again the file */
     dbFile.clear();
@@ -365,7 +391,11 @@ std::string getClosestDate_diffMonth(std::ifstream &dbFile, std::string dateInpu
         moDB = atoi(dbLine.substr(5,2).c_str());
         dayDB = atoi(dbLine.substr(8,2).c_str());
         if (yrDB == chosenYear && moDB == chosenMonth && dayDB == chosenDay)
+        {
+            // std::cout << GREEN "[MATCH FOUND ]" RESET_COLOUR << std::endl;
             break;
+        }
+            
     }
 
     // (void) dbFile;
@@ -376,29 +406,29 @@ std::string getClosestDate_diffMonth(std::ifstream &dbFile, std::string dateInpu
 /* Gets lower date which is the closest */
 std::string getClosestValue(std::ifstream &dbFile, std::string dateInput)
 {
-    std::cout << PINK "---------------------------getClosestValue --------------------------- " RESET_COLOUR << std::endl;
-    std::cout << PINK "*THERE WAS NO EXACT MATCH FOR DATE, LET'S FIND CLOSEST DATE POSSIBLE!*" RESET_COLOUR << std::endl;
+    // std::cout << PINK "---------------------------getClosestValue --------------------------- " RESET_COLOUR << std::endl;
+    // std::cout << PINK "*THERE WAS NO EXACT MATCH FOR DATE, LET'S FIND CLOSEST DATE POSSIBLE!*" RESET_COLOUR << std::endl;
     // std::string dbLine = yearMonthExistsInDB(dbFile, dateInput);
     std::string dbLine = "";
 
-    std::cout << PINK "👀 dateInput = " << dateInput << RESET_COLOUR << std::endl;
+    // std::cout << PINK "👀 dateInput = " << dateInput << RESET_COLOUR << std::endl;
 
     /* DONE It works! */
     if (yearMonthExistsInDB(dbFile, dateInput)) /* Yes there is sameYYYY-sameMM-LowerDay*/
     {
-        std::cout << PINK "CASE A --> Same YEAR and MONTH" RESET_COLOUR << std::endl;
+        // std::cout << PINK "CASE A --> Same YEAR and MONTH" RESET_COLOUR << std::endl;
         dbLine = getClosestDateSameMonth(dbFile, dateInput); /* Which one is it? */
         // std::cout << "> dbLine = " << dbLine << std::endl;
     }
     else if (isLineSameYear(dbFile, dateInput)) /* Yes there is sameYYYY*/
     {
-        std::cout << PINK "CASE B --> Same YEAR" RESET_COLOUR << std::endl;
+        // std::cout << PINK "CASE B --> Same YEAR" RESET_COLOUR << std::endl;
         // dbLine = /* Which one is it? */
-        dbLine = getClosestDate_diffMonth(dbFile, dbLine);
+        dbLine = getClosestDate_diffMonth(dbFile, dateInput);
     }
     else /* There is NO line same year */
     {
-        std::cout << PINK "CASE C --> DIFFERENT YEAR " RESET_COLOUR  << std::endl;
+        // std::cout << PINK "CASE C --> DIFFERENT YEAR " RESET_COLOUR  << std::endl;
         dbLine = getClosestDate_diffYear(dbFile, dateInput);
         /* #1 Is there any date earlier? If no, error message */
         /* #2 If yes, which one is it? */
@@ -406,7 +436,7 @@ std::string getClosestValue(std::ifstream &dbFile, std::string dateInput)
 
     // std::cout << RED << "[FINAL] dbLine = " << dbLine << RESET_COLOUR << std::endl;
 
-    std::cout << PINK "[COMPLETED] ---------------------------------------------------------- " RESET_COLOUR<< std::endl;
+    // std::cout << PINK "[COMPLETED] ---------------------------------------------------------- " RESET_COLOUR<< std::endl;
     return (dbLine);
 }
 
@@ -447,16 +477,16 @@ float getValueInDate (std::string line)
 
     if (bitcoinValueInDate != -1)
     {
-        std::cout << GREEN << "✅ Exact date found: " << dateInput << RESET_COLOUR << std::endl;
-        std::cout << "bitcoinValueInDate = " << bitcoinValueInDate << std::endl;
+        // std::cout << GREEN << "✅ Exact date found: " << dateInput << RESET_COLOUR << std::endl;
+        // std::cout << "bitcoinValueInDate = " << bitcoinValueInDate << std::endl;
     }
     else /* Option #2: find the closest date. When bitcoinValueInDate still == -1, means it didn't find the exact date. Let's find the closest! :) */
     {
-        std::cout << RED << "❌ Date not found" RESET_COLOUR << std::endl;
+        // std::cout << RED << "❌ Date not found" RESET_COLOUR << std::endl;
         dbLine = getClosestValue(dbFile, dateInput);
 
         /* this print is not working properly */
-        std::cout << YELLOW << "dbLine = " << dbLine << RESET_COLOUR  << std::endl;
+        // std::cout << YELLOW << "dbLine = " << dbLine << RESET_COLOUR  << std::endl;
         bitcoinValueInDate = atof(dbLine.substr(11).c_str());
     }
     
@@ -472,17 +502,17 @@ float getValueInDate (std::string line)
 */
 float getTotalValue (std::string line)
 {
-    std::cout << CYAN "--------------------------getTotalValue ------------------------ " RESET_COLOUR << std::endl;
+    // std::cout << CYAN "--------------------------getTotalValue ------------------------ " RESET_COLOUR << std::endl;
     
     /* How many bitcoins did we have that day? */
     float howManyBitcoins = atoi(line.substr(12).c_str()); /* Gets line from input.txt */
-    std::cout << "> ✅ howManyBitcoins = " << howManyBitcoins << std::endl;
+    // std::cout << "> ✅ howManyBitcoins = " << howManyBitcoins << std::endl;
     
     /* Which was bitcoin's value that day? */
     float bitcoinValue_in_date = getValueInDate(line);
-    std::cout << ">🔜 Bitcoin's value we'll use: " << CYAN << bitcoinValue_in_date << RESET_COLOUR << std::endl;
+    // std::cout << ">🔜 Bitcoin's value we'll use: " << CYAN << bitcoinValue_in_date << RESET_COLOUR << std::endl;
     
     float resultToPrint = howManyBitcoins * bitcoinValue_in_date;
-    std::cout << CYAN "-----------------------------------------------------------------------" RESET_COLOUR<< std::endl;
+    // std::cout << CYAN "-----------------------------------------------------------------------" RESET_COLOUR<< std::endl;
     return (resultToPrint);
 }

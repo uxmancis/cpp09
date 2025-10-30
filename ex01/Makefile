@@ -6,7 +6,7 @@
 #    By: uxmancis <uxmancis>                        +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2025/10/23 11:47:11 by uxmancis          #+#    #+#              #
-#    Updated: 2025/10/30 13:15:52 by uxmancis         ###   ########.fr        #
+#    Updated: 2025/10/30 18:13:35 by uxmancis         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -15,7 +15,8 @@ CC = c++
 CFLAGS = -Wall -Wextra -Werror -std=c++98 -fsanitize=address -g3
 
 # Source files and object files
-SRC =	main.cpp
+SRC =	main.cpp\
+		RPN.cpp
 
 OBJ = $(SRC:.cpp=.o)
 

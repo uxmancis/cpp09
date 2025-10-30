@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   main.cpp                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: uxuemancisidorlaskurain <uxuemancisidor    +#+  +:+       +#+        */
+/*   By: uxmancis <uxmancis>                        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/23 11:52:25 by uxmancis          #+#    #+#             */
-/*   Updated: 2025/10/29 19:36:29 by uxuemancisi      ###   ########.fr       */
+/*   Updated: 2025/10/30 12:23:07 by uxmancis         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -206,18 +206,18 @@ int main(int argc, char **argv)
         
         if (validLine(line, DO_NOT_PRINT)) /* validLine returns true == Valid line :) */
         { 
-            std::cout << GREEN "\n\n-----------------------------------\n[VALID LINE] " RESET_COLOUR;
+            // std::cout << GREEN "\n\n-----------------------------------\n[VALID LINE] " RESET_COLOUR;
             /* Inserts new element to map */
             result = myMap.insert(std::make_pair(line, getTotalValue(line))); 
             // result = myMap.insert(std::make_pair(line, 36)); /* this works, getTotlalValue is what's failing */
 
             /* Displays valid line */
-            std::cout << result.first->first.substr(0, 10) << " => " << result.first->first.substr(13) << " = " << result.first->second;
-            std::cout << GREEN "[COMPLETED]\n----------------------------------------\n\n" RESET_COLOUR << std::endl; //PRINT HERE
+            std::cout << result.first->first.substr(0, 10) << " => " << result.first->first.substr(13) << " = " << result.first->second << std::endl;;
+            // std::cout << GREEN "[COMPLETED]\n----------------------------------------\n\n" RESET_COLOUR << std::endl; //PRINT HERE
         }
         else /* Invalid line */
         {
-            std::cout << RED "[INVALID LINE] " RESET_COLOUR ;
+            // std::cout << RED "[INVALID LINE] " RESET_COLOUR ;
             validLine(line, PRINT_ERROR); /* prints errors */
         }
     }
