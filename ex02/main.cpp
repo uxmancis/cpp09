@@ -6,7 +6,7 @@
 /*   By: uxmancis <uxmancis>                        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/11/03 10:35:23 by uxmancis          #+#    #+#             */
-/*   Updated: 2025/11/03 16:17:06 by uxmancis         ###   ########.fr       */
+/*   Updated: 2025/11/04 19:41:04 by uxmancis         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -64,15 +64,29 @@ bool validSequence(int argc, char **argv)
 *   Merge sort: https://www.youtube.com/watch?v=4VqmGXwpLqc
 *       · Usually done recursively
 *       · Divide and conquer: problem divided into smaller problems
-*  
+*
+*
+*   Ford-Johnson algorithm:
+*       #1 Divide the input into pairs and sort the pairs => Merge sort
+*               Input: [8, 3, 5, 9, 7]
+*               Pairs: [(8, 3), (5, 9), (7)]
+*               Sorted pairs: [(3, 8), (5, 9), (7)]
+*
+*       #2 Sort the first elements of each pair => Insert sort
+*               Extract first elements: [3, 5, 7]
+*               Sorted first elements: [3, 5, 7]
+*
+*       #3 Merge the remaining elements = Insert sort
+*               Extract second elements: [8, 9]
+*               Merge second elements: [8, 9]
+*               Merge second elements to first elements: [3, 5, 7, 8, 9]
 *
 */
 int main(int argc, char **argv)
 {
     int countNb = 0;
     int timeTaken = 0;
-
-    
+    int mode = EVALUATION; /* 🥊 Choose your fighter: EVALUATION or DEBUG */
     
     if (argc == 1)
     {
@@ -89,18 +103,55 @@ int main(int argc, char **argv)
     }
     
     /****************************************************  std::VECTOR  *****************************************************/
-    std::vector<int> MyVector;
-    informVector(argc, argv, &MyVector);
-    std::cout << "Before: ";
-    // putContainer(MyVector);
-    putVector (MyVector);
+    /* std::VECTOR container has been chosen because of the following reasons: 
+    *       · Contiguous Memory: efficient for random access and iteration. Useful to access elements by index.
+    *************************************************************************************************************************/
+    std::vector<std::pair<int, int> > MyVector;
 
-    //get it sorted
-    MergeVector(MyVector);    
+    std::cout << "Before: ";
+    putArgs(argc, argv);
     
-    std::cout << "After: " << std::endl;
+    /* #1 Divide arguments into pairs and sort each pair */
+    getPairs(argc, argv, &MyVector); /* => getPairs(): std::vector enables iterations and accesing with index */
+    if (mode == DEBUG)
+    {
+        std::cout << CYAN "#1  Pairs have been created: ";
+        putVectorPair (MyVector);
+        std::cout << RESET_COLOUR;
+    }
+    sortPairs(&MyVector); /* => sortPairs(): std::vector enables iterations and accesing with index */
+    if (mode == DEBUG)
+    {
+        std::cout << CYAN "#2  Pairs have been sorted: ";
+        putVectorPair (MyVector);
+        std::cout << RESET_COLOUR;
+    }
+
+    /* #2 We'll create 2 containers: first and second and sort each of them
+    *       first: first elements of pairs
+    *       second: second elements of pairs (if not -1)
+    **/
+    std::vector<int> firstElem;
+    std::vector<int> secondElem;
+    extractFirstAndSecond(MyVector, &firstElem, &secondElem, mode);
+    
+    std::vector<int> MyVectorFinal;
+    sortFirstAndSecond(MyVectorFinal, firstElem, secondElem);
+    if (mode == DEBUG)
+    {
+        std::cout << CYAN "#4  MyVectorFinal result: ";
+        putVector(MyVectorFinal);
+        std::cout << RESET_COLOUR;
+    }
+    std::cout << "After: ";
+    putVector(MyVectorFinal);
     std::cout << "Time to proocess a range of " << countNb << " elements with st::[..] : " << timeTaken << " us" << std::endl;
     std::cout << "Time to proocess a range of " << countNb << " elements with st::[..] : " << timeTaken << " us" << std::endl;
+
+    /****************************************************  std::DEQUE  *****************************************************/
+    /* std::DEQUE container has been chosen because of the following reasons: 
+    *       · It allows efficient insertion and deletion at b
+    ************************************************************************************************************************/
      
     return (0);
 }
