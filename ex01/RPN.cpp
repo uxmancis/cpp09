@@ -6,7 +6,7 @@
 /*   By: uxmancis <uxmancis>                        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/30 18:10:29 by uxmancis          #+#    #+#             */
-/*   Updated: 2025/10/30 18:11:03 by uxmancis         ###   ########.fr       */
+/*   Updated: 2025/11/03 10:34:29 by uxmancis         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -32,7 +32,7 @@ void letsCalculate(std::stack<int> *myStack, char op)
 {
     int number1;
     int number2;
-    int result = 0; /* -Werror asks for it */
+    int result = 0; /* -Werro0r asks for it */
 
     number2 = myStack->top(); /* access to top element and convert to int */
     

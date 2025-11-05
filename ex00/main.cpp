@@ -6,7 +6,7 @@
 /*   By: uxmancis <uxmancis>                        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/23 11:52:25 by uxmancis          #+#    #+#             */
-/*   Updated: 2025/10/30 12:23:07 by uxmancis         ###   ########.fr       */
+/*   Updated: 2025/11/05 16:36:51 by uxmancis         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -110,26 +110,39 @@ bool isValidValue(std::string v, what_to_print instruction)
 *       true -> Both date and value are valid
 *       false -> Either date or value is invalid
 */
-bool validLine(std::string line, what_to_print instruction)
+bool validLine(std::string line, what_to_print instruction, error_mgmt &mode)
 {
     bool isDateValid = false;
     bool isValueValid = false;
     /* Line Info: */
+    // std::cout << "----------------------------" << line << std::endl;
     // std::cout << "Line = " << line << std::endl;
     // std::cout << "Size: " << line.size() << std::endl;
-    
     if (line.size() >= 10)
     {
         std::string date = line.substr(0,10); //get date
         // std::cout << "Date: " << date << std::endl;
         isDateValid = isValidDate(date, instruction); /* prints invalid line errors */
     }
-    if (line.size() >= 12)
+    else 
+    {
+        std::cerr << "Error: Missing date" << std::endl;
+        mode = STOP;
+    }
+        // throw std::runtime_error ("Error: Missing date");
+    if (line.size() >= 13)
     {
         std::string value = line.substr(13); //get date
         // std::cout << "Value: " << value << std::endl;
         isValueValid = isValidValue(value, instruction); /* prints invalid line errors */
     }
+    else if (isDateValid) /* Don't finish program (throw exception) if Date was not valid, only error message, but we continue still :)*/
+    {
+        std::cerr << "Error: Missing value" << std::endl;
+        mode = STOP;
+    }
+    // throw std::runtime_error ("Error: Missing value");
+        
     if (isDateValid && isValueValid) /* When Date and Value both are valid */
         return (true);
     return (false);
@@ -201,26 +214,37 @@ int main(int argc, char **argv)
     getline(file, line); /* 1st time using = a way to ignore first line: "date | value" */
 
     std::pair<std::map<std::string, float>::iterator, bool> result;
-    while(getline(file, line)) //Iteration in each line
-    {
-        
-        if (validLine(line, DO_NOT_PRINT)) /* validLine returns true == Valid line :) */
-        { 
-            // std::cout << GREEN "\n\n-----------------------------------\n[VALID LINE] " RESET_COLOUR;
-            /* Inserts new element to map */
-            result = myMap.insert(std::make_pair(line, getTotalValue(line))); 
-            // result = myMap.insert(std::make_pair(line, 36)); /* this works, getTotlalValue is what's failing */
 
-            /* Displays valid line */
-            std::cout << result.first->first.substr(0, 10) << " => " << result.first->first.substr(13) << " = " << result.first->second << std::endl;;
-            // std::cout << GREEN "[COMPLETED]\n----------------------------------------\n\n" RESET_COLOUR << std::endl; //PRINT HERE
-        }
-        else /* Invalid line */
+    error_mgmt mode = OK;
+    // try
+    // {
+        while(getline(file, line)) //Iteration in each line
         {
-            // std::cout << RED "[INVALID LINE] " RESET_COLOUR ;
-            validLine(line, PRINT_ERROR); /* prints errors */
+            mode = OK;
+            if (validLine(line, DO_NOT_PRINT, mode)) /* validLine returns true == Valid line :) */
+            { 
+                // std::cout << GREEN "\n\n-----------------------------------\n[VALID LINE] " RESET_COLOUR;
+                /* Inserts new element to map */
+                result = myMap.insert(std::make_pair(line, getTotalValue(line))); 
+                // result = myMap.insert(std::make_pair(line, 36)); /* this works, getTotlalValue is what's failing */
+
+                /* Displays valid line */
+                std::cout << result.first->first.substr(0, 10) << " => " << result.first->first.substr(13) << " = " << result.first->second << std::endl;;
+                // std::cout << GREEN "[COMPLETED]\n----------------------------------------\n\n" RESET_COLOUR << std::endl; //PRINT HERE
+            }
+            else if (mode != STOP) /* Invalid line */
+            {
+                // std::cout << RED "[INVALID LINE] " RESET_COLOUR ;
+                validLine(line, PRINT_ERROR, mode); /* prints errors */
+            }
         }
-    }
+    // }
+    // catch(const std::exception& e)
+    // {
+    //     std::cerr << e.what() << '\n';
+    // }
+    
+    
 
     return (0);
 }

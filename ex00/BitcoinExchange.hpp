@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   BitcoinExchange.hpp                                :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: uxuemancisidorlaskurain <uxuemancisidor    +#+  +:+       +#+        */
+/*   By: uxmancis <uxmancis>                        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/28 18:22:43 by uxmancis          #+#    #+#             */
-/*   Updated: 2025/10/29 17:37:07 by uxuemancisi      ###   ########.fr       */
+/*   Updated: 2025/11/05 16:33:07 by uxmancis         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -34,6 +34,12 @@ enum what_to_print
     DO_NOT_PRINT /* Do NOT print errors */
 };
 
+enum error_mgmt
+{
+    STOP,
+    OK
+};
+
 /* BitcoinExchange.cpp file*/
 std::string getClosestValue(std::ifstream &dbFile, std::string dateInput);
 float       getValueInDate (std::string line);
@@ -42,7 +48,7 @@ float       getTotalValue (std::string line);
 /* main.cpp file */
 bool        isValidDate(std::string date, what_to_print instruction);
 bool        isValidValue(std::string valueStr, what_to_print instruction);
-bool        validLine(std::string line, what_to_print instruction);
+bool validLine(std::string line, what_to_print instruction, error_mgmt &mode);
 bool        check_args(int argc, char **argv);
 bool        check_file(std::ifstream &file);
 

@@ -6,7 +6,7 @@
 /*   By: uxmancis <uxmancis>                        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/28 18:24:02 by uxmancis          #+#    #+#             */
-/*   Updated: 2025/10/30 12:22:08 by uxmancis         ###   ########.fr       */
+/*   Updated: 2025/11/05 12:57:32 by uxmancis         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -267,7 +267,6 @@ unsigned int getChosenDay(std::ifstream &dbFile, unsigned int chosenYear, unsign
 
     /* YEAR and MONTH are already chosen. Finally, let's choose the latest DAY :),  lit can be [0-31] :) */
     unsigned int chosenDay = 31;
-    // int i = 10;
     while (chosenDay > 0 && !found)
     {
         /* We make sure we can read again the file */
@@ -281,24 +280,17 @@ unsigned int getChosenDay(std::ifstream &dbFile, unsigned int chosenYear, unsign
             moDB = atoi(dbLine.substr(5,2).c_str());
             dayDB = atoi(dbLine.substr(8,2).c_str());
 
-            // std::cout << "-> dbLinke = " << dbLine << std::endl;
-            // if (yrDB == 2011 && moDB == 2 && dayDB == 27)
-            //     std::cout << "DB = " << dbLine << "| dayDB = " << dayDB << "| chosenDay = " << chosenDay << std::endl;
             if (yrDB == chosenYear && moDB == chosenMonth && dayDB == chosenDay)
             {
                 found = true;
                 break;
             }
-            // i --;
                 
         }
         if (!found)
         {
             chosenDay--;
-            // std::cout << "///////////////////// chosenDay = " << chosenDay << std::endl;
         }
-        // i--;
-            
     }
     return (chosenDay);
 }
@@ -316,9 +308,6 @@ std::string getClosestDate_diffYear (std::ifstream &dbFile, std::string dateInpu
 {
     (void) dbFile;
     (void) dateInput;
-
-    // std::cout << YELLOW "getClosestDate_diffYear" RESET_COLOUR << std::endl;
-    // std::cout << YELLOW "dateInput = " << dateInput << RESET_COLOUR << std::endl;
 
     std::string dbLine;
     
@@ -418,7 +407,6 @@ std::string getClosestValue(std::ifstream &dbFile, std::string dateInput)
     {
         // std::cout << PINK "CASE A --> Same YEAR and MONTH" RESET_COLOUR << std::endl;
         dbLine = getClosestDateSameMonth(dbFile, dateInput); /* Which one is it? */
-        // std::cout << "> dbLine = " << dbLine << std::endl;
     }
     else if (isLineSameYear(dbFile, dateInput)) /* Yes there is sameYYYY*/
     {
@@ -430,11 +418,7 @@ std::string getClosestValue(std::ifstream &dbFile, std::string dateInput)
     {
         // std::cout << PINK "CASE C --> DIFFERENT YEAR " RESET_COLOUR  << std::endl;
         dbLine = getClosestDate_diffYear(dbFile, dateInput);
-        /* #1 Is there any date earlier? If no, error message */
-        /* #2 If yes, which one is it? */
     }
-
-    // std::cout << RED << "[FINAL] dbLine = " << dbLine << RESET_COLOUR << std::endl;
 
     // std::cout << PINK "[COMPLETED] ---------------------------------------------------------- " RESET_COLOUR<< std::endl;
     return (dbLine);

@@ -6,7 +6,7 @@
 /*   By: uxmancis <uxmancis>                        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/11/03 10:35:23 by uxmancis          #+#    #+#             */
-/*   Updated: 2025/11/04 19:41:04 by uxmancis         ###   ########.fr       */
+/*   Updated: 2025/11/05 16:13:14 by uxmancis         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -53,6 +53,79 @@ bool validSequence(int argc, char **argv)
     return (true);
 }
 
+bool areEqual(const std::vector<int> &vec, const std::deque<int> &deq)
+{
+    // Check if sizes are the same
+    if (vec.size() != deq.size())
+        return false;
+
+    // Use std::equal to compare elements
+    return std::equal(vec.begin(), vec.end(), deq.begin());
+}
+
+bool validateInput(int argc, char **argv)
+{
+    if (argc == 1)
+    {
+        std::cerr << "Error: invalid argument, insert positive integer sequence (duplicates now allowed) as an argument" << std::endl;
+        std::cerr << "Valid e.g.: ./PmergeMe 5 77 2 78 1 79 7 80 9 81 74 82 29  83 30" << std::endl;
+        return (false);
+    }
+    if (!validSequence(argc, argv))
+    {
+        std::cerr << "Error: invalid argument, insert positive integer sequence (duplicates now allowed) as an argument" << std::endl;
+        std::cerr << "Valid e.g.: ./PmergeMe 5 77 2 78 1 79 7 80 9 81 74 82 29  83 30" << std::endl;
+        return (false);
+    }
+    return true;
+}
+
+int main(int argc, char **argv)
+{
+    int mode = EVALUATION; /* 🥊 Choose your fighter: EVALUATION or DEBUG */
+    
+    if (!validateInput(argc, argv))
+        return (EXIT_FAILURE);
+
+    /* Line 1 - Evaluation */
+    std::cout << "Before: ";
+    putArgs(argc, argv);
+    
+    /****************************************************  std::VECTOR  *****************************************************/
+    /* std::VECTOR container has been chosen because of the following reasons: 
+    *       · Contiguous Memory: efficient for random access and iteration. Useful to access elements by index.
+    *************************************************************************************************************************/
+    s_result resultVector = sortVector(argc, argv, mode);
+
+
+    /****************************************************  std::DEQUE  *****************************************************/
+    /* std::DEQUE container has been chosen because of the following reasons: 
+    *       · It allows efficient insertion and deletion
+    *       · Code implementation is direct based on code for vector, efficient to use already programmed code previously. 
+    ************************************************************************************************************************/
+    s_result resultDeque = sortDeque(argc, argv, mode);
+    
+    
+    /* Line 2 - Evaluation */
+    if (areEqual(resultVector.sortedVector, resultDeque.sortedDeque))
+    {
+        std::cout << "After: ";
+        putVector(resultVector.sortedVector);
+    }
+    else
+    {
+        std::cerr << "Not same output, should not happen" << std::endl;
+        return (-1);
+    }
+        
+    /* Line 3 - Evaluation */
+    std::cout << "Time to proocess a range of " << resultVector.sortedVector.size() << " elements with st::[..] : " << resultVector.timeTakenVector << " us" << std::endl;
+    
+    /* Line 4 - Evaluation */
+    std::cout << "Time to proocess a range of " << resultVector.sortedDeque.size() << " elements with st::[..] : " << resultDeque.timeTakenDeque << " us" << std::endl;
+
+    return (0);
+}
 /* Merge-Insertion Sort is a Divide and Conquer algorithm.
 *  It combines: merge sort and insertion sortA
 *
@@ -82,76 +155,3 @@ bool validSequence(int argc, char **argv)
 *               Merge second elements to first elements: [3, 5, 7, 8, 9]
 *
 */
-int main(int argc, char **argv)
-{
-    int countNb = 0;
-    int timeTaken = 0;
-    int mode = EVALUATION; /* 🥊 Choose your fighter: EVALUATION or DEBUG */
-    
-    if (argc == 1)
-    {
-        std::cerr << "Error: invalid argument, insert positive integer sequence (duplicates now allowed) as an argument" << std::endl;
-        std::cerr << "Valid e.g.: ./PmergeMe 3 5 9 7 4" << std::endl;
-        return (EXIT_FAILURE);
-    }
-    if (!validSequence(argc, argv))
-    {
-
-        std::cerr << "Error: invalid argument, insert positive integer sequence (duplicates now allowed) as an argument" << std::endl;
-        std::cerr << "Valid e.g.: ./PmergeMe 3 5 9 7 4" << std::endl;
-        return (EXIT_FAILURE);
-    }
-    
-    /****************************************************  std::VECTOR  *****************************************************/
-    /* std::VECTOR container has been chosen because of the following reasons: 
-    *       · Contiguous Memory: efficient for random access and iteration. Useful to access elements by index.
-    *************************************************************************************************************************/
-    std::vector<std::pair<int, int> > MyVector;
-
-    std::cout << "Before: ";
-    putArgs(argc, argv);
-    
-    /* #1 Divide arguments into pairs and sort each pair */
-    getPairs(argc, argv, &MyVector); /* => getPairs(): std::vector enables iterations and accesing with index */
-    if (mode == DEBUG)
-    {
-        std::cout << CYAN "#1  Pairs have been created: ";
-        putVectorPair (MyVector);
-        std::cout << RESET_COLOUR;
-    }
-    sortPairs(&MyVector); /* => sortPairs(): std::vector enables iterations and accesing with index */
-    if (mode == DEBUG)
-    {
-        std::cout << CYAN "#2  Pairs have been sorted: ";
-        putVectorPair (MyVector);
-        std::cout << RESET_COLOUR;
-    }
-
-    /* #2 We'll create 2 containers: first and second and sort each of them
-    *       first: first elements of pairs
-    *       second: second elements of pairs (if not -1)
-    **/
-    std::vector<int> firstElem;
-    std::vector<int> secondElem;
-    extractFirstAndSecond(MyVector, &firstElem, &secondElem, mode);
-    
-    std::vector<int> MyVectorFinal;
-    sortFirstAndSecond(MyVectorFinal, firstElem, secondElem);
-    if (mode == DEBUG)
-    {
-        std::cout << CYAN "#4  MyVectorFinal result: ";
-        putVector(MyVectorFinal);
-        std::cout << RESET_COLOUR;
-    }
-    std::cout << "After: ";
-    putVector(MyVectorFinal);
-    std::cout << "Time to proocess a range of " << countNb << " elements with st::[..] : " << timeTaken << " us" << std::endl;
-    std::cout << "Time to proocess a range of " << countNb << " elements with st::[..] : " << timeTaken << " us" << std::endl;
-
-    /****************************************************  std::DEQUE  *****************************************************/
-    /* std::DEQUE container has been chosen because of the following reasons: 
-    *       · It allows efficient insertion and deletion at b
-    ************************************************************************************************************************/
-     
-    return (0);
-}

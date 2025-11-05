@@ -6,7 +6,7 @@
 /*   By: uxmancis <uxmancis>                        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/30 13:15:57 by uxmancis          #+#    #+#             */
-/*   Updated: 2025/10/30 18:13:18 by uxmancis         ###   ########.fr       */
+/*   Updated: 2025/11/05 12:59:06 by uxmancis         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -75,21 +75,6 @@ bool isValdArg (char **argv)
             /* (*2) Next char in argv[1] must be a space */
             if (argv[1][i+1] && !isSpace(argv[1][i+1])) /* (*2) Next element must be a space. If next element exists and is not valid digit or operator*/
                 return (false);
-
-            /* (*3) Operators must be followed by digit */ //PENDING
-            // if (isOperator(argv[1][i]))
-            // {
-            //     i++; /* let's move to next char*/
-            //     while (isSpace(argv[1][i])) /* ignore spaces*/
-            //     {
-            //         // printf("kaixo\n");
-            //         i++;
-            //     }
-                    
-            //     if (argv[1][i] && !isDigit(argv[1][i])) /* If exists (has not finished yet), then Only digits are allowed after */
-            //         return (false);
-            // }
-            
         }
         i++;
         /* Pass n spaces in between elements until getting to the next element. */
