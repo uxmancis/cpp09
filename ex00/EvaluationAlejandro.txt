@@ -1,0 +1,26 @@
+date | value
+2005-02-02 | 0.1           OK - Bad input
+2011-09-14 | -390.57       OK - Not a positive number
+2010-11-03 | 517.239       OK - 517.239 * 0 = 0
+2020-06-26 | 998.808       OK - 998.808 * 9276.58 = 9.26552e+06
+2012-07-09 | 1242.2        OK - Too large a number
+2019-07-11 | 700.492       OK - Good result
+2019-06-25 | 416.636       OK - Good result
+2017-05-22 | 507.753       OK - Good result
+2012-12-23 | 1146.69       OK - Too large a number
+2013-12-02 | 1293.19       OK - Too large a number
+2016-12-12 | 1602.81       OK - Too large a number
+2017-04-22 | 737.216       OK - Good result
+2014-11-26 | 782.601       OK - Too large a number
+2015-07-13 | 583.763       OK - Good result
+2013-04-12 | 353.688       OK - Good result
+2009-11-06 | 1018.34       OK - Too large a number
+2010-11-19 | 396.835       OK - Good result
+2020-03-29 | 1558.83       OK - Too large a number
+-2014-01-26 | 1800.22      OK - Error bad input + Error too large a number
+2016-07-30 | 515.044       OK - Good result
+2014-03-16 | 632.64        OK - Good result
+2024-12-42 | 12            OK - Bad input
+2024-12-30 , 12            OK - Good result
+01-02-2020 | 737.216       OK - Bad input
+2020-02-29 | 558.83        OK - Good result

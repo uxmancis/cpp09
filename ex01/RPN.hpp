@@ -6,7 +6,7 @@
 /*   By: uxmancis <uxmancis>                        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/30 18:11:08 by uxmancis          #+#    #+#             */
-/*   Updated: 2025/10/30 18:13:21 by uxmancis         ###   ########.fr       */
+/*   Updated: 2025/11/11 13:24:05 by uxmancis         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,6 +16,7 @@
 #include <iostream> //std::cerr, std::endl
 #include <stdio.h>
 #include <stack>
+#include <cstdlib> //EXIT_FAILURE
 
 #define GREEN "\033[32m"
 #define RED "\033[0m"
@@ -26,7 +27,7 @@
 
 /* RPN.cpp file */
 void showFullStack(std::stack<int> myStack);
-void letsCalculate(std::stack<int> *myStack, char op);
+int letsCalculate(std::stack<int> *myStack, char op);
 
 /* main.cpp file */
 bool isSpace (char c);

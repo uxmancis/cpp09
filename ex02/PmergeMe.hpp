@@ -1,15 +1,3 @@
-/* ************************************************************************** */
-/*                                                                            */
-/*                                                        :::      ::::::::   */
-/*   PmergeMe.hpp                                       :+:      :+:    :+:   */
-/*                                                    +:+ +:+         +:+     */
-/*   By: uxmancis <uxmancis>                        +#+  +:+       +#+        */
-/*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2025/11/03 15:42:46 by uxmancis          #+#    #+#             */
-/*   Updated: 2025/11/05 16:12:36 by uxmancis         ###   ########.fr       */
-/*                                                                            */
-/* ************************************************************************** */
-
 #ifndef PMERGEME_HPP
 #define PMERGEME_HPP
 
@@ -21,50 +9,54 @@
 #include <set>
 #include <stdio.h>
 #include <ctime> //clock()
+#include <algorithm> //std::sort, for tests
 
+/* Colours */
 #define GREEN "\033[32m"
-#define RED "\033[0m"
+#define RED "\033[31m" /* bold letters */
 #define CYAN "\033[36m"
 #define PINK "\033[35m"
 #define YELLOW "\033[33m"
 #define RESET_COLOUR "\033[0m"
+
+/* Change text style: */
+#define BOLD "\033[1m" /* bold letters */
 
 enum{
     EVALUATION,
     SHOW_ALGORITHM /* Show additional prints if chosen in main */
 };
 
-struct s_result
+struct sVector
 {
-    std::vector<int> sortedVector;
-    double timeTakenVector;
-    
-    std::deque<int> sortedDeque;
-    double timeTakenDeque;  
+    std::vector<int> originalVector;
+    std::vector<int> updatedVector;
+    std::vector<int> winnersVector;
+    std::vector<int> losersVector;
+    int              rlevel; /* Recursivity level */
+    int              groupBy; /* Groups are made of n elements = level * 2 */
+    int              elem1; /* 2 numbers are compared to decide position */
+    int              elem2;
+
+    std::vector<int> inputFirst;
+    std::vector<int> inputSecond;
+    std::vector<std::pair<int, int> > pairs;
 };
 
-/* PmergeMe.cpp file: */
-void sortFirstAndSecondVector(std::vector<int> &MyVectorFinal,std::vector<int> &firstElem,std::vector<int> &secondElem);
-void sortFirstAndSecondDeque(std::deque<int> &MyDequeFinal,std::deque<int> &firstElem,std::deque<int> &secondElem);
-void extractFirstAndSecondVector(std::vector<std::pair<int, int> > MyVector, std::vector<int> *firstElem, std::vector<int> *secondElem, int mode);
-void extractFirstAndSecondDeque(std::deque<std::pair<int, int> > MyDeque, std::deque<int> *firstElem, std::vector<int> *secondElem, int mode);
-void putArgs(int argc, char **argv);
-void sortPairsVector(std::vector<std::pair<int, int> > *MyVector);
-void sortPairsDeque(std::deque<std::pair<int, int> > *MyDeque);
-void getPairsVector(int argc, char **argv, std::vector<std::pair<int, int> > *MyVector);
-void getPairsDeque(int argc, char **argv, std::deque<std::pair<int, int> > *MyDeque);
-void putVectorPair(std::vector<std::pair<int, int> > MyVector);
-void putDequePair(std::deque<std::pair<int, int> > MyDeque);
+/* main.cpp */
 void putVector(std::vector<int> vector);
-void putDeque(std::deque<int> deque);
-void MergeVector(std::vector<int> MyVector);
-s_result sortVector(int argc, char **argv, int mode);
-s_result sortDeque(int argc, char **argv, int mode);
 
-/* main.cpp file: */
-bool isInt(char c);
-bool onlyDigits (char *str);
-bool validSequence(int argc, char **argv);
+/* PmergeMe.cpp*/
+std::vector<int> fordJohnson(std::vector<int> input, int mode, unsigned int rlevel);
 
+
+
+
+
+/************************************************************************** */
+// std::vector<int> fordJohnson(sVector &sv, int mode);
+
+/* main.cpp */
+// void putVector(std::vector<int> vector);
 
 #endif

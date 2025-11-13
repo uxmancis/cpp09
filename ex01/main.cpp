@@ -6,7 +6,7 @@
 /*   By: uxmancis <uxmancis>                        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/30 13:15:57 by uxmancis          #+#    #+#             */
-/*   Updated: 2025/11/05 12:59:06 by uxmancis         ###   ########.fr       */
+/*   Updated: 2025/11/11 13:25:32 by uxmancis         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -85,6 +85,21 @@ bool isValdArg (char **argv)
     return (true);
 }    
 
+bool twoDigitsInStack(std::stack<int> myStack)
+{
+    size_t size = myStack.size();
+    
+    // std::cout << "size = " << size << std::endl;
+    
+    if (size < 2)
+        return (false); /* Minimum 2 elements before digit */
+        
+    /* If there are 2 elements in stack that means they are 2 digits.
+    * On the contraty, they would not be in the stack because of previous
+    * checks */
+    return (true);
+}
+
 /* Polish notation (PN) is a mathematical notation in which operators
 *  precede their operands.
 *       E.g.: + 3 4                 E.g.: / 8 2               E.g.: x (- 5 6) 7
@@ -151,11 +166,22 @@ int main (int argc, char **argv)
             myStack.push(argv[1][i] - '0');
             // showFullStack(myStack);
         }
-        else if(isOperator(argv[1][i]))
+        else if(isOperator(argv[1][i]) && twoDigitsInStack(myStack))
         {
             op = argv[1][i];
-            letsCalculate(&myStack, op);
+            if (letsCalculate(&myStack, op)==EXIT_FAILURE)
+            {
+                std::cerr << "Error: invalid arguments" << std::endl;
+                std::cerr << "Try e.g.: ./RPN '8 9 * 9 - 9 - 9 - 4 - 1 +' //with double quotation marks" << std::endl;
+                return (-1);
+            }
             // showFullStack(myStack);
+        }
+        else if (!twoDigitsInStack(myStack))
+        {
+            std::cerr << "Error: invalid arguments" << std::endl;
+            std::cerr << "Try e.g.: ./RPN '8 9 * 9 - 9 - 9 - 4 - 1 +' //with double quotation marks" << std::endl;
+            return (-1);
         }
         i++;
     }

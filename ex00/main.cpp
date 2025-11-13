@@ -6,7 +6,7 @@
 /*   By: uxmancis <uxmancis>                        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/23 11:52:25 by uxmancis          #+#    #+#             */
-/*   Updated: 2025/11/05 16:36:51 by uxmancis         ###   ########.fr       */
+/*   Updated: 2025/11/11 12:58:36 by uxmancis         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -47,7 +47,7 @@ bool isValidDate(std::string date, what_to_print instruction)
     /* Invalid date - Particular case: February not leap-year, 28th max*/
     if (month == 2)
     {
-        if (day > 28)
+        if (day > 29)
         {
             if (instruction == PRINT_ERROR)
             {
@@ -229,7 +229,7 @@ int main(int argc, char **argv)
                 // result = myMap.insert(std::make_pair(line, 36)); /* this works, getTotlalValue is what's failing */
 
                 /* Displays valid line */
-                std::cout << result.first->first.substr(0, 10) << " => " << result.first->first.substr(13) << " = " << result.first->second << std::endl;;
+                std::cout << result.first->first.substr(0, 10) << " => " << result.first->first.substr(13) << " = " << std::fixed << std::setprecision(2) << result.first->second << std::endl;;
                 // std::cout << GREEN "[COMPLETED]\n----------------------------------------\n\n" RESET_COLOUR << std::endl; //PRINT HERE
             }
             else if (mode != STOP) /* Invalid line */

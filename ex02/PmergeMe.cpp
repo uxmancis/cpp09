@@ -1,499 +1,462 @@
-/* ************************************************************************** */
-/*                                                                            */
-/*                                                        :::      ::::::::   */
-/*   PmergeMe.cpp                                       :+:      :+:    :+:   */
-/*                                                    +:+ +:+         +:+     */
-/*   By: uxmancis <uxmancis>                        +#+  +:+       +#+        */
-/*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2025/11/03 15:42:36 by uxmancis          #+#    #+#             */
-/*   Updated: 2025/11/05 17:29:09 by uxmancis         ###   ########.fr       */
-/*                                                                            */
-/* ************************************************************************** */
-
 #include "PmergeMe.hpp"
 
-enum{
-  ODD, /* par */
-  EVEN  /* impar */
-};
-
-/* Function to generate the Jacobsthal sequence 
-* Jacobstal sequence: determines the order of the insertion.
+/* isMergePossible
 *
-*   Objective: to sort a sequence with the fewest possible comparisons.
-* 
-*   J(0) = 0
-*   J(1) = 1
-*   J(n) = J(n-1) + 2 * J(n-2) for n >= 2
+*   Checks a hypothesis. Would it be possible to continue merging in next level?
+*   It creates a tmp_groupBy, which represents the hypothetical groupBy in potential
+*   next level.
 *
-*   0, 1, 1, 3, 5, 11, 21, 43, ...
-*
-*   It provides a specific order foor sorting elements into a sorted sequence.
-*
-*   How does Jacobstal make more efficient secondElem to be sorted into the
-*   already sorted FirstElem? It minimizes the number of comparisons required during
-*   the merging process.
-*
+*   It is used to determine whether if program must call fordJohnson function again in
+*   recursion or whether if it's time to start going back from recursion.
 *
 */
-std::vector<int> generateJacobsthalSequenceVector(size_t n)
+bool isMergePossible (sVector sv)
 {
+    int tmp_groupBy = sv.groupBy * 2;
+
+    // std::cout << "updatedVector = " ;
+    // putVector(sv.updatedVector);
+    if ((int)sv.updatedVector.size() > tmp_groupBy)
+        return (true);
+    // std::cout << "No More Merge possible, size = " << sv.updatedVector.size() <<", groupBy = " << tmp_groupBy << std::endl;
+    return (false);
+}
+
+/* even means it's multiple of 2, but 2 + 1*/
+bool isEven(int i)
+{
+    if (i % 2 == 0)
+    {
+        // std::cout << "Bikoiti";
+        return (true);
+    }
+    else
+    {
+        // std::cout << "Bakoiti";
+        return (false);
+    }
+        
+}
+
+/* 
+*   E.g.:  4     7     8
+*         [0]   [1]   [2]
+*
+*   index = 2 has no pair
+*   size = 3
+*   
+*   index + 1 <
+*
+*/
+bool hasPair(std::vector<int> vector, int index)
+{
+    if ((index + 1) < (int)vector.size())
+    {
+        // std::cout << "bikotedun";
+        return (true);
+    }
+        
+    // std::cout << "solterin";
+    return (false);
+}
+
+void putVectorAsPairs(std::vector<int> vector)
+{
+    // std::cout << RESET_COLOUR "putVectorAsPairs, vector = ";
+    // putVector(vector);
+    for (int i = 0; i < (int)vector.size(); i++)
+    {
+        // std::cout << "i = " << i << ", vector[i] = " << vector[i] << std::endl;
+        if (isEven(i) && hasPair(vector, i)) /* even (bikoiti: 0, 2, 4, 6...)*/
+            std::cout << "(" << vector[i] << ", " << vector[i + 1] << ") ";
+        else if(isEven(i) && !hasPair(vector, i))
+            std::cout << vector[i] << std::endl;
+        // std::cout <<YELLOW"kaixo:" << i << ", " << vector[i] << RESET_COLOUR;
+    }
+    std::cout << std::endl;
+}
+
+void insertEvenElem(std::vector<int> src, std::vector<int> *dst)
+{
+    for (int i = 0; i < (int)src.size(); i++)
+    {
+        if (i % 2 == 0)
+            (*dst).push_back(src[i]);
+    }
+}
+
+void insertOddElem(std::vector<int> src, std::vector<int> *dst)
+{
+    for (int i = 0; i < (int)src.size(); i++)
+    {
+        if (i % 2 == 1)
+            (*dst).push_back(src[i]);
+    }
+}
+
+/* Jacobstal sequence: 
+*       
+*       0, 1, 1, 3, 5, 11, 21, 43, 85, 
+*       171, 341, 683, 1365, 2731, 5461, 
+*       10923, 21845, 43691, 87381, 
+*       174763, 349525, …
+*
+*    J(0) = 0
+*    J(1) = 1
+*    J(n) = J(n-1) + 2 * J(n-2), for n >= 2
+*
+*    current = previous + 2 × (previous of the previous)
+*
+*    Using the Jacobstal sequence minimizes the number
+*    of comparisons required.
+*          
+*/
+
+std::vector<int> generateJacobsthalSequence(int n) {
     std::vector<int> jacobsthal;
-    if (n == 0)
-        return jacobsthal;
+    if (n <= 0) return jacobsthal;
 
     jacobsthal.push_back(0); // J(0)
-    if (n == 1)
-        return jacobsthal;
+    if (n == 1) return jacobsthal;
 
     jacobsthal.push_back(1); // J(1)
-    for (size_t i = 2; i < n; ++i)
-    {
-        jacobsthal.push_back(jacobsthal[i - 1] + 2 * jacobsthal[i - 2]); // J(n) = J(n-1) + 2 * J(n-2)
+    for (int i = 2; i < n; ++i) {
+        int next = jacobsthal[i - 1] + 2 * jacobsthal[i - 2];
+        if (next >= n) break; // Stop if the sequence exceeds the size of losers
+        jacobsthal.push_back(next);
     }
     return jacobsthal;
 }
 
-std::deque<int> generateJacobsthalSequenceDeque(size_t n)
+
+std::vector<int> fordJohnson(std::vector<int> input, int mode, unsigned int rlevel)
 {
-    std::deque<int> jacobsthal;
-    if (n == 0)
-        return jacobsthal;
+    (void) mode;
+    // std::cout << "kaixo berriz! :)" << std::endl;
 
-    jacobsthal.push_back(0); // J(0)
-    if (n == 1)
-        return jacobsthal;
+    /* Next Recursivity Level, elements must be grouped by 2^rlevel
+    *       rlevel     groupBy 
+    *         1           2 (2¹)
+    *         2           4 (2²)             
+    *         3           8 (2³)
+    *         4           16 (2⁴)
+    ****************************************************************/
+    rlevel++;
+    // sv.groupBy = sv.groupBy * 2; /* always pairs! https://medium.com/@mohammad.ali.ibrahim.525/ford-johnson-algorithm-merge-insertion-4b024f0c3d42 */
 
-    jacobsthal.push_back(1); // J(1)
-    for (size_t i = 2; i < n; ++i)
+    std::cout << "\n*****************************************************************************" << std::endl;
+    std::cout << GREEN "⭐ Level " << rlevel << " | Input: ";
+    // putVector(input);
+    putVectorAsPairs(input);
+    std::cout << RESET_COLOUR ;
+
+    /* Sort pairs locally */
+    for (int i = 0; i < (int)(input.size() - 1); i+=2)
     {
-        jacobsthal.push_back(jacobsthal[i - 1] + 2 * jacobsthal[i - 2]); // J(n) = J(n-1) + 2 * J(n-2)
+        if (input[i] > input[i+1])
+            std::swap(input[i], input[i+1]);
     }
-    return jacobsthal;
-}
 
-/* Insertion sort algorithm */
-void sortFirstAndSecondVector(std::vector<int> &MyVectorFinal,std::vector<int> &firstElem,std::vector<int> &secondElem)
-{
-    // Step 1: Insertion sort firstElem (stable, simple)
-    for (size_t i = 1; i < firstElem.size(); ++i)
+    std::cout << CYAN "    Input (SORTED): ";
+    putVectorAsPairs(input);
+    std::cout << RESET_COLOUR;
+
+    /* Create winner and loser sequences */
+    if (input.size() > 1) /* when only 1 element in winner will not do anything, not split, neither jacobstal, nor call fordjohnson again :) */
     {
-        int key = firstElem[i];
-        int j = static_cast<int>(i) - 1;
-        while (j >= 0 && firstElem[j] > key)
+        /* also called 'pend'. If odd, right has 1 more element than left*/
+        std::vector<int> winners;
+        insertOddElem(input, &winners);
+        std::cout << "    Winners (main) = ";
+        putVector(winners);
+
+        std::vector<int> losers; /* also called 'main' */
+        insertEvenElem(input, &losers);
+        std::cout << "    Losers (pend) =  ";
+        putVector(losers);
+
+        /* I think nothing should happen here */
+
+        // if (winners.size() >= 1)
+        winners = fordJohnson(winners, mode, rlevel);
+            
+
+        /* insert losers to winners: jacobstal, binarysearch */
+        std::cout << "\n*****************************************************************************" << std::endl;
+        std::cout << YELLOW "...we continue in Level " << rlevel << RESET_COLOUR << std::endl;
+        std::cout << "    Winners (main) ALREADY 100% SORTED = ";
+        putVector(winners);
+        std::cout << "    Losers (pend) =  ";
+        putVector(losers);
+
+        std::cout << YELLOW << "Let's put pend into main! (here, TODO!)" << RESET_COLOUR << std::endl;
+        if (losers.size() == 1 && winners.size() == 1) /* Particular case, handled manually */
         {
-            firstElem[j + 1] = firstElem[j];
-            --j;
+            int tmpValue = winners[0];
+            winners.clear();
+            winners.push_back(losers[0]);
+            winners.push_back(tmpValue);
         }
-        firstElem[j + 1] = key;
-    }
-
-    //Step 2: Insert each element from secondElem into the sorted firstElem
-    int count = 0;
-
-    
-    /* Option a) Jacobstal (more optimized)
-    *
-    *   Try it with: ./PmergeMe 200 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30 31 32 33 34 35 36 37 38 39 40 41 42 43 44 45 46 47 48 49 50 51 52 53 54 55 56 57
-    * 
-    *       58 elements
-    *       Jacobstal: 7 comparisons
-    *       Non-Jacobstal: 29 comparisons
-    * */
-    // std::vector<int> jacobsthal = generateJacobsthalSequenceVector(secondElem.size()); /* Generates Jacobstal sequence */
-    
-    // for (size_t k = 0; k < jacobsthal.size(); ++k)
-    // {
-    //     int index = jacobsthal[k];
-    //     if (index < (int)secondElem.size()) // Ensure the index is within bounds
-    //     {
-    //         int v = secondElem[index];
-    //         std::vector<int>::iterator it = std::lower_bound(firstElem.begin(), firstElem.end(), v);
-    //         firstElem.insert(it, v);
-    //         count++;
-    //     }
-    // }
-    
-
-    /* Previous option: not optimized with Jacobstal */
-    for (size_t k = 0; k < secondElem.size(); ++k)
-    {
-        int v = secondElem[k];
-        std::vector<int>::iterator it = std::lower_bound(firstElem.begin(), firstElem.end(), v);
-        firstElem.insert(it, v);
-        count++;
-    }
-
-    // std::cout << "count = " << count << std::endl;
-    // Copy the final sorted sequence into MyVector
-    MyVectorFinal = firstElem;
-}
-
-/* Insertion sort algorithm */
-void sortFirstAndSecondDeque(std::deque<int> &MyDequeFinal,std::deque<int> &firstElem,std::deque<int> &secondElem)
-{
-
-    // Insertion sort. it sorts firstElem
-    /* 
-    *   #1 firstElem: sorted using Insertion sort algorithm
-    *   #2 generate MyDequeFinal:
-    *       > VLOOKUP secondElem, WHERE? firstElem
-    */
-    for (size_t i = 1; i < firstElem.size(); ++i) /* we iterate though each element in the container, i = 0 already sorted */
-    {
-        int key = firstElem[i]; /* REFERENCE with which we want to compare our numbers */
-        int j = static_cast<int>(i) - 1;
-
-        // std::cout << CYAN "key = " << key << RESET_COLOUR << std::endl;
-
-        /* 
-        * We are comparing firstElem[j] with key (reference)
-        *   · key = iterates through 100% array
-        *   · firstElem[j] = previous element to key element in array
-        * 
-        * Logic that applies insertion sort:
-        *       #1 Bigger element is identified on the RIGHT (key = reference) => enters loop
-        *       #2 It compares 100% elements on the left with key = reference (j--)
-        *
-        * */
-        while (j >= 0 && firstElem[j] > key) /* while previous number is bigger, only enters if swap is needed. Element from the right is bigger? Stops moving to the right*/
-        {
-            // std::cout << "> BEFORE (Left: " << firstElem[j] << ", Right: " << key << ")" << std::endl;
-            // std::cout << ": j = " << j << ", i = " << i << ", [j] = " << firstElem[j] << ", [i] = " << firstElem[i] << std::endl; /* firstElem not sorted*/
-            firstElem[j + 1] = firstElem[j]; /* we shift the number to the right if bigger than key */
-            --j;
-        }
-        firstElem[j + 1] = key; /* If no swap needed, doesn't chage anything, firstElem[j+1] is the same as key, as it hasn't changed */
-        // std::cout << "> AFTER: ";
-        // putDeque(firstElem);
-        // std::cout << "> AFTER: j = " << j << ", i = " << i << ", [j] = " << firstElem[j+1] << ", [i] = " << firstElem[i] << std::endl;
-
-    }
-
-    //Step 2: Insert each element from secondElem into the sorted firstElem
-    /* Option a) Jacobstal (more optimized)
-    *
-    *   Try it with: ./PmergeMe 200 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30 31 32 33 34 35 36 37 38 39 40 41 42 43 44 45 46 47 48 49 50 51 52 53 54 55 56 57
-    * 
-    *       58 elements
-    *       Jacobstal: 7 comparisons
-    *       Non-Jacobstal: 29 comparisons
-    * */
-    // std::deque<int> jacobsthal = generateJacobsthalSequenceDeque(secondElem.size());
-
-    // // Step 3: Insert each element from secondElem into the sorted firstElem
-    // for (size_t k = 0; k < jacobsthal.size(); ++k)
-    // {
-    //     int index = jacobsthal[k];
-    //     if (index < (int)secondElem.size()) // Ensure the index is within bounds
-    //     {
-    //         int v = secondElem[index];
-    //         std::deque<int>::iterator it = std::lower_bound(firstElem.begin(), firstElem.end(), v);
-    //         firstElem.insert(it, v);
-    //     }
-    // } 
-
-    // Insert each element from secondElem into the sorted firstElem
-    for (size_t k = 0; k < secondElem.size(); ++k)
-    {
-        int v = secondElem[k];
-        std::deque<int>::iterator it = std::lower_bound(firstElem.begin(), firstElem.end(), v); /* lower bound searches (VLOOKUP) v (secondElement) in firstElem container*/
-        firstElem.insert(it, v);
-    }
-
-    // Copy the final sorted sequence into MyVector
-    MyDequeFinal = firstElem;
-}
-
-void extractFirstAndSecondVector(std::vector<std::pair<int, int> > MyVector, std::vector<int> *firstElem, std::vector<int> *secondElem, int mode)
-{
-    size_t size = MyVector.size();
-    // std::cout << "extractFirstAndSecond, size = " << size << std::endl;
-    int i = 0;
-    while (i < (int) size)
-    {
-        (*firstElem).push_back(MyVector[i].first);
-        if (MyVector[i].second != -1)
-        {
-            (*secondElem).push_back(MyVector[i].second);
-        }
-        i++;
-    }
-    if (mode == SHOW_ALGORITHM)
-    {
-        std::cout << CYAN "#3  FirstElem and SecondElem containers have been created:" << std::endl;
-        std::cout << "      FirstElem Vector: ";
-        putVector(*firstElem);
-        std::cout << "      SecondElem Vector: ";
-        putVector(*secondElem);
-    }
-}
-
-void extractFirstAndSecondDeque(std::deque<std::pair<int, int> > MyDeque, std::deque<int> *firstElem, std::deque<int> *secondElem, int mode)
-{
-    size_t size = MyDeque.size();
-    // std::cout << "extractFirstAndSecond, size = " << size << std::endl;
-    int i = 0;
-    while (i < (int) size)
-    {
-        (*firstElem).push_back(MyDeque[i].first);
-        if (MyDeque[i].second != -1)
-        {
-            (*secondElem).push_back(MyDeque[i].second);
-        }
-        i++;
-    }
-    if (mode == SHOW_ALGORITHM)
-    {
-        std::cout << PINK "#3  FirstElem and SecondElem containers have been created:" << std::endl;
-        std::cout << "      FirstElem Vector: ";
-        putDeque(*firstElem);
-        std::cout << "      SecondElem Vector: ";
-        putDeque(*secondElem);
-    }
-}
-
-void sortPairsVector(std::vector<std::pair<int, int> > *MyVector)
-{
-    for (size_t i = 0; i < MyVector->size(); ++i)
-    {
-        // Ensure the pair is in ascending order
-        if ((*MyVector)[i].first > (*MyVector)[i].second && (*MyVector)[i].second != -1) /* Don't swap when number missing (-1)*/
-        {
-            std::swap((*MyVector)[i].first, (*MyVector)[i].second);
-        }
-    }
-}
-
-void sortPairsDeque(std::deque<std::pair<int, int> > *MyDeque)
-{
-    for (size_t i = 0; i < MyDeque->size(); ++i)
-    {
-        // Ensure the pair is in ascending order
-        if ((*MyDeque)[i].first > (*MyDeque)[i].second && (*MyDeque)[i].second != -1) /* Don't swap when number missing (-1)*/
-        {
-            std::swap((*MyDeque)[i].first, (*MyDeque)[i].second);
-        }
-    }
-}
-
-void getPairsVector(int argc, char **argv, std::vector<std::pair<int, int> > *MyVector)
-{
-    int first; 
-    int second;
-    
-    for (int i = 1; i < argc; i+=2 )
-    {
-        first = atoi(argv[i]);
-        if (i + 1 < argc)
-            second = atoi(argv[i + 1]);
         else
-            second = -1; /* Indicator of missing number */
-        MyVector->push_back(std::make_pair(first, second));
+        {
+            /* Generate Jacobsthal sequence */
+            std::vector<int> jacobsthal = generateJacobsthalSequence(losers.size());
+            std::cout << "    Jacobsthal sequence: ";
+            putVector(jacobsthal); // Assuming putVector prints a vector
+
+            /* Binary search I: Insert losers into winners using Jacobsthal sequence */
+            std::vector<bool> inserted(losers.size(), false); // Track inserted elements
+            for (std::vector<int>::iterator it = jacobsthal.begin(); it != jacobsthal.end(); ++it) {
+                int index = *it;
+                if (index < (int)losers.size() && !inserted[index]) {
+                    int elem = losers[index];
+                    std::vector<int>::iterator it = std::lower_bound(winners.begin(), winners.end(), elem);
+                    winners.insert(it, elem);
+                    inserted[index] = true;
+                }
+            }
+
+            /* Binary search II: Insert any remaining losers */
+            for (size_t k = 0; k < losers.size(); ++k) {
+                if (!inserted[k]) {
+                    int elem = losers[k];
+                    std::vector<int>::iterator it = std::lower_bound(winners.begin(), winners.end(), elem);
+                    winners.insert(it, elem);
+                }
+            }
+
+            /* Binary search: insert pend in main */
+            // for (size_t k = 0; k < losers.size(); ++k)
+            // {
+            //     int elem = losers[k];
+            //     std::vector<int>::iterator it = std::lower_bound(winners.begin(), winners.end(), elem);
+            //     winners.insert(it, elem);
+                
+            //     // count++;
+            // }
+
+        }
+
+        
+
+        std::cout << "    RESULT - Winners (main) ALREADY 100% SORTED = ";
+        putVector(winners);
+        return (winners);
+        
+
+        
+        std::cout << "*********************************************************" << std::endl;
     }
+    else
+        std::cout << RED "<<< No more recursion>>> " RESET_COLOUR << std::endl << std::endl; /* when 'Noo more recursion' hits, then "...we continue in Level will be executed n times pending"*/
+
+
+    return (input); /* not necessary, just becausee we have to return something :)*/
 }
 
-void getPairsDeque(int argc, char **argv, std::deque<std::pair<int, int> > *MyDeque)
-{
-    int first; 
-    int second;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/************************************************************************************************************************************************************************************************************** */
+
+// void putVectorPair(std::vector<std::pair<int, int> > MyVector)
+// {
+//     for (size_t i = 0; i < MyVector.size(); ++i)
+//         std::cout << "(" << MyVector[i].first << ", " << MyVector[i].second << ") ";
+//     std::cout << std::endl;
+// }
+
+// /*
+// *   sv: struct vector that contains all needed info to sort vector
+// *
+// */
+// std::vector<int> fordJohnson(sVector &sv, int mode)
+// {
+//     (void) mode;
+
+//     /* ----- #1 make pairs --------------------------------------------------------------------------------*/
+//     size_t size = sv.inputSecond.size();
+
+//     if (size <= 1) /* Already sorted */
+//         return (sv.inputSecond);
+
+//     std::cout << YELLOW "Letsgo! " << std::endl;
+//     std::cout << "> First: ";
+//     putVector(sv.inputFirst);
+//     std::cout << "> Second: ";
+//     putVector(sv.inputSecond);
+//     std::cout << RESET_COLOUR << std::endl;
+
+//     int first;
+//     int second;
+//     for (int i = 0; i < (int) size; i+=2)
+//     {
+//         first = sv.inputSecond[i];
+//         if (i + 1 < (int)size)
+//             second = sv.inputSecond[i + 1];
+//         else
+//             second = -1; /* Unpaired element */
+//         sv.pairs.push_back(std::make_pair(first, second)); /* first and second both share index :) */
+//     }
+//     sv.inputSecond.clear();
+//     std::cout << "#1 Pairs created: ";
+//     putVectorPair(sv.pairs);
+
+
+
+
+//     /* ----- #2 sort pairs --------------------------------------------------------------------------------*/
+//     for (size_t i = 0; i < sv.pairs.size(); ++i)
+//     {
+//         // Ensure the pair is in ascending order
+//         if (sv.pairs[i].first > sv.pairs[i].second && sv.pairs[i].second != -1) /* Don't swap when number missing (-1)*/
+//         {
+//             std::swap(sv.pairs[i].first, sv.pairs[i].second);
+//         }
+//     }
+//     std::cout << "#2 Pairs sorted: ";
+//     putVectorPair(sv.pairs);
+
+
+
+//     // ----- #3 Split: create 2 sequences: ------------------------------------------------------------------------*/
+//     for (size_t i = 0; i < sv.pairs.size(); i++)
+//     {
+//         sv.inputFirst.push_back(sv.pairs[i].first); 
+//         sv.inputSecond.push_back(sv.pairs[i].second); 
+//     }
+//     // std::cout << "#3 Splitted sequences created: " << std::endl;
+//     // std::cout << "> First: ";
+//     // putVector(sv.inputFirst);
+//     // std::cout << "> Second: ";
+//     // putVector(sv.inputSecond);
+
     
-    for (int i = 1; i < argc; i+=2 )
-    {
-        first = atoi(argv[i]);
-        if (i + 1 < argc)
-            second = atoi(argv[i + 1]);
-        else
-            second = -1; /* Indicator of missing number */
-        MyDeque->push_back(std::make_pair(first, second));
-    }
-}
 
-void putArgs(int argc, char **argv)
-{
-    int num;
-    for (int i = 1; i < argc; ++i){
-        num = atoi(argv[i]);
-        std::cout << num << " ";
-    }
-    std::cout << std::endl;
-}
+//     //#4 Sort Second, recursively
+//     std::cout << CYAN "SPLIT DONE - Before calling recursivity! " << std::endl;
+//     std::cout << "> First: ";
+//     putVector(sv.inputFirst);
+//     std::cout << "> Second: ";
+//     putVector(sv.inputSecond);
+//     std::cout << RESET_COLOUR << std::endl;
 
-void putVectorPair(std::vector<std::pair<int, int> > MyVector)
-{
-    for (size_t i = 0; i < MyVector.size(); ++i)
-        std::cout << "(" << MyVector[i].first << ", " << MyVector[i].second << ") ";
-    std::cout << std::endl;
-}
+//     if (sv.inputSecond.size() > 1)
+//     {
+//         sVector tempSv;
+//         tempSv.inputSecond = sv.inputSecond;
+//         tempSv.inputFirst.clear();
+//         tempSv.pairs.clear();
+        
+//         tempSv.inputSecond = fordJohnson(tempSv, mode);
 
-void putDequePair(std::deque<std::pair<int, int> > MyDeque)
-{
-    for (size_t i = 0; i < MyDeque.size(); ++i)
-        std::cout << "(" << MyDeque[i].first << ", " << MyDeque[i].second << ") ";
-    std::cout << std::endl;
-}
+//         sv.inputSecond = tempSv.inputSecond;
+//     }
+   
+//     std::cout << GREEN "COMPLETED Recursivity" RESET_COLOUR << std::endl;
 
-void putVector(std::vector<int> vector)
-{
-    for (size_t i = 0; i < vector.size(); ++i)
-    {
-        if (i + 1 == vector.size())
-            std::cout << vector[i];
-        else
-            std::cout << vector[i] << ", "; /* ',' only when there are still more oponents */
-    }
-    std::cout << std::endl;
-}
+//     // std::sort(sv.inputSecond.begin(), sv.inputSecond.end());
 
-void putDeque(std::deque<int> deque)
-{
-    for (size_t i = 0; i < deque.size(); ++i)
-    {
-        if (i + 1 == deque.size())
-            std::cout << deque[i];
-        else
-            std::cout << deque[i] << ", "; /* ',' only when there are still more oponents */
-    }
-    std::cout << std::endl;
-}
+//     //#5 Put rest of numbers into already sorted Second sequence
+//     //Jacobstal
+//     //Binary search: implemented using std::lower_bound
 
-void mergeSortedVectors(const std::vector<int> &left, const std::vector<int> &right, std::vector<int> &result)
-{
-    result.clear(); // Clear the result vector to store the merged content
-    size_t i = 0, j = 0;
+//     // std::cout << "size of First = " << sv.inputFirst.size() << std::endl;
+//     for (size_t i = 0; i < sv.inputFirst.size(); i++)
+//     {
+//         int elem = sv.inputFirst[i];
+//         std::vector<int>::iterator it = std::lower_bound(sv.inputSecond.begin(), sv.inputSecond.end(), elem);
+//         sv.inputSecond.insert(it, elem);
+//     }
+//     std::cout << "#5 Rest elements in First inserted into Second (already sorted): " << std::endl;
+//     std::cout << "> First: ";
+//     putVector(sv.inputFirst);
+//     std::cout << "> Second: ";
+//     putVector(sv.inputSecond);
 
-    // Merge the two sorted vectors
-    while (i < left.size() && j < right.size())
-    {
-        if (left[i] <= right[j])
-            result.push_back(left[i++]);
-        else
-            result.push_back(right[j++]);
-    }
+//     // (void) mode;
 
-    // Add any remaining elements from the left vector
-    while (i < left.size())
-        result.push_back(left[i++]);
-
-    // Add any remaining elements from the right vector
-    while (j < right.size())
-        result.push_back(right[j++]);
-}
-
-s_result sortVector(int argc, char **argv, int mode)
-{
-    if (mode == SHOW_ALGORITHM)
-        std::cout << CYAN " ----------------------- sortVECTOR -----------------------" RESET_COLOUR << std::endl;
-    /* ⏱️ Start measuring time */
-    clock_t startTimeVector = clock();
-    
-    std::vector<std::pair<int, int> > MyVector;
-    
-    /* #1 Divide arguments into pairs and sort each pair */
-    getPairsVector(argc, argv, &MyVector); /* => getPairs(): std::vector enables iterations and accesing with index */
-    if (mode == SHOW_ALGORITHM)
-    {
-        std::cout << CYAN "#1  Pairs have been created: ";
-        putVectorPair (MyVector);
-        std::cout << RESET_COLOUR;
-    }
-    sortPairsVector(&MyVector); /* => sortPairs(): std::vector enables iterations and accesing with index */
-    if (mode == SHOW_ALGORITHM)
-    {
-        std::cout << CYAN "#2  Pairs have been sorted: ";
-        putVectorPair (MyVector);
-        std::cout << RESET_COLOUR;
-    }
-
-    /* #2 We'll create 2 containers: first and second and sort each of them
-    *       first: first elements of pairs
-    *       second: second elements of pairs (if not -1)
-    **/
-    std::vector<int> firstElem;
-    std::vector<int> secondElem;
-    extractFirstAndSecondVector(MyVector, &firstElem, &secondElem, mode);
-    
-    std::vector<int> MyVectorFinal;
-    sortFirstAndSecondVector(MyVectorFinal, firstElem, secondElem);
-    if (mode == SHOW_ALGORITHM)
-    {
-        std::cout << CYAN "#4  MyVectorFinal result: ";
-        putVector(MyVectorFinal);
-        std::cout << RESET_COLOUR;
-    }
-
-    /* ⏱️ Stock measuring time */
-    clock_t endTimeVector = clock();
-
-    /* ⏱️ Calculate elapsed time in microseconds */
-    double timeTakenVector = static_cast<double> (endTimeVector - startTimeVector) * 1000000.0 / CLOCKS_PER_SEC;
-    
-
-    /* Returning info to main :) */
-    s_result resultVector;
-    resultVector.sortedVector = MyVectorFinal;
-    resultVector.timeTakenVector = timeTakenVector;
-
-    return (resultVector);
-}
-
-s_result sortDeque(int argc, char **argv, int mode)
-{
-    if (mode == SHOW_ALGORITHM)
-        std::cout << PINK "\n ----------------------- sortDEQUE -----------------------" RESET_COLOUR << std::endl;
-
-    /* ⏱️ Start measuring time */
-    clock_t startTimeDeque = clock();
-
-    std::deque<std::pair<int, int> > MyDeque;
-
-    (void)argc;
-    (void)argv;
-    (void)mode;
-
-    
-    /* #1 Divide arguments into pairs and sort each pair */
-    getPairsDeque(argc, argv, &MyDeque); /* => getPairs(): std::vector enables iterations and accesing with index */
-    if (mode == SHOW_ALGORITHM)
-    {
-        std::cout << PINK "#1  Pairs have been created: ";
-        putDequePair (MyDeque);
-        std::cout << RESET_COLOUR;
-    }
-    sortPairsDeque(&MyDeque); /* => sortPairs(): std::vector enables iterations and accesing with index */
-    if (mode == SHOW_ALGORITHM)
-    {
-        std::cout << PINK "#2  Pairs have been sorted: ";
-        putDequePair (MyDeque);
-        std::cout << RESET_COLOUR;
-    }
-
-    /* #2 We'll create 2 containers: first and second and sort each of them
-    *       first: first elements of pairs
-    *       second: second elements of pairs (if not -1)
-    **/
-    std::deque<int> firstElem;
-    std::deque<int> secondElem;
-    extractFirstAndSecondDeque(MyDeque, &firstElem, &secondElem, mode);
-    
-    std::deque<int> MyDequeFinal;
-    sortFirstAndSecondDeque(MyDequeFinal, firstElem, secondElem);
-    if (mode == SHOW_ALGORITHM)
-    {
-        std::cout << PINK "#4  MyVectorFinal result: ";
-        putDeque(MyDequeFinal);
-        std::cout << RESET_COLOUR << std::endl;
-    }
-
-    /* ⏱️ Stock measuring time */
-    clock_t endTimeDeque = clock();
-
-    /* ⏱️ Calculate elapsed time in microseconds */
-    double timeTakenDeque = static_cast<double> (endTimeDeque - startTimeDeque) * 1000000.0 / CLOCKS_PER_SEC;;
-
-    /* Returning info to main :) */
-    s_result resultDeque;
-    resultDeque.sortedDeque = MyDequeFinal;
-    resultDeque.timeTakenDeque = timeTakenDeque;
-    return (resultDeque);
-}
+//     return(sv.inputFirst);
+// }

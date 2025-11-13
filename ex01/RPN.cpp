@@ -6,7 +6,7 @@
 /*   By: uxmancis <uxmancis>                        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/30 18:10:29 by uxmancis          #+#    #+#             */
-/*   Updated: 2025/11/03 10:34:29 by uxmancis         ###   ########.fr       */
+/*   Updated: 2025/11/11 13:25:51 by uxmancis         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -28,7 +28,7 @@ void showFullStack(std::stack<int> myStack)
     std::cout << "]" << std::endl;
 }
 
-void letsCalculate(std::stack<int> *myStack, char op)
+int letsCalculate(std::stack<int> *myStack, char op)
 {
     int number1;
     int number2;
@@ -40,6 +40,9 @@ void letsCalculate(std::stack<int> *myStack, char op)
     number1 = myStack->top();
     myStack->pop();
 
+    if (op == '/' && number2 == 0)
+        return (EXIT_FAILURE);
+        
     if (op == '+')
         result = number1 + number2;
     else if (op == '-')
@@ -48,7 +51,8 @@ void letsCalculate(std::stack<int> *myStack, char op)
         result = number1 * number2;
     else if (op == '/')
         result = number1 / number2;
-
+    
     myStack->push(result); /* converted back to char */
     // showFullStack(*myStack);
+    return (0);
 }

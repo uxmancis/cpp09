@@ -1,15 +1,3 @@
-/* ************************************************************************** */
-/*                                                                            */
-/*                                                        :::      ::::::::   */
-/*   main.cpp                                           :+:      :+:    :+:   */
-/*                                                    +:+ +:+         +:+     */
-/*   By: uxmancis <uxmancis>                        +#+  +:+       +#+        */
-/*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2025/11/03 10:35:23 by uxmancis          #+#    #+#             */
-/*   Updated: 2025/11/05 16:13:14 by uxmancis         ###   ########.fr       */
-/*                                                                            */
-/* ************************************************************************** */
-
 #include "PmergeMe.hpp"
 
 bool isInt(char c)
@@ -80,78 +68,74 @@ bool validateInput(int argc, char **argv)
     return true;
 }
 
+void putArgs(int argc, char **argv)
+{
+    int num;
+    for (int i = 1; i < argc; ++i){
+        num = atoi(argv[i]);
+        std::cout << num << " ";
+    }
+    std::cout << std::endl;
+}
+
+void putVector(std::vector<int> vector)
+{
+    for (size_t i = 0; i < vector.size(); ++i)
+    {
+        if (i + 1 == vector.size())
+            std::cout << vector[i];
+        else
+            std::cout << vector[i] << ", "; /* ',' only when there are still more oponents */
+    }
+    std::cout << std::endl;
+}
+
+/* Merge sort compares 100% of elements. E.g.:
+*       
+*       A = [1, 3, 4]   i = 0
+*       B = [2, 5, 6]   j = 0
+*
+*       if (A[i] < B[j]) {C.insert(A[i]); i++;)}
+*       else {C.insert(B[j]); j++;)}
+*
+*       Restult: C = [1, 2, 3, 4, 5, 6]
+*
+* However, Ford-Johnson uses less comparisons.
+*
+*
+*
+*/
+
 int main(int argc, char **argv)
 {
-    int mode = EVALUATION; /* 🥊 Choose your fighter: EVALUATION or DEBUG */
+    int mode = SHOW_ALGORITHM; /* 🥊 Choose your fighter: EVALUATION or DEBUG */
     
     if (!validateInput(argc, argv))
         return (EXIT_FAILURE);
 
-    /* Line 1 - Evaluation */
     std::cout << "Before: ";
     putArgs(argc, argv);
-    
-    /****************************************************  std::VECTOR  *****************************************************/
-    /* std::VECTOR container has been chosen because of the following reasons: 
-    *       · Contiguous Memory: efficient for random access and iteration. Useful to access elements by index.
-    *************************************************************************************************************************/
-    s_result resultVector = sortVector(argc, argv, mode);
+
+    // sVector sv; /*sv, Struct Vector */
+
+    std::vector<int> originalVector;
+    for (int i = 1; i < argc; i++)
+        originalVector.push_back(atoi(argv[i]));
+
+    std::cout << "Initial input container created: ";
+    putVector(originalVector);
 
 
-    /****************************************************  std::DEQUE  *****************************************************/
-    /* std::DEQUE container has been chosen because of the following reasons: 
-    *       · It allows efficient insertion and deletion
-    *       · Code implementation is direct based on code for vector, efficient to use already programmed code previously. 
-    ************************************************************************************************************************/
-    s_result resultDeque = sortDeque(argc, argv, mode);
-    
-    
-    /* Line 2 - Evaluation */
-    if (areEqual(resultVector.sortedVector, resultDeque.sortedDeque))
-    {
-        std::cout << "After: ";
-        putVector(resultVector.sortedVector);
-    }
-    else
-    {
-        std::cerr << "Not same output, should not happen" << std::endl;
-        return (-1);
-    }
-        
-    /* Line 3 - Evaluation */
-    std::cout << "Time to proocess a range of " << resultVector.sortedVector.size() << " elements with st::[..] : " << resultVector.timeTakenVector << " us" << std::endl;
-    
-    /* Line 4 - Evaluation */
-    std::cout << "Time to proocess a range of " << resultVector.sortedDeque.size() << " elements with st::[..] : " << resultDeque.timeTakenDeque << " us" << std::endl;
+    /* Values' inizialization */
+    // sv.rlevel = 0;
+    // sv.groupBy = 1;
+    // sv.updatedVector = sv.originalVector;
 
+
+    
+    unsigned int rlevel = 0;
+    fordJohnson(originalVector, mode, rlevel);
+
+    (void) mode;
     return (0);
 }
-/* Merge-Insertion Sort is a Divide and Conquer algorithm.
-*  It combines: merge sort and insertion sortA
-*
-*   Insertion sort: https://www.youtube.com/watch?v=JU767SDMDvA
-*       · From left to right
-*       · Move each element to the right position in array
-*
-*
-*   Merge sort: https://www.youtube.com/watch?v=4VqmGXwpLqc
-*       · Usually done recursively
-*       · Divide and conquer: problem divided into smaller problems
-*
-*
-*   Ford-Johnson algorithm:
-*       #1 Divide the input into pairs and sort the pairs => Merge sort
-*               Input: [8, 3, 5, 9, 7]
-*               Pairs: [(8, 3), (5, 9), (7)]
-*               Sorted pairs: [(3, 8), (5, 9), (7)]
-*
-*       #2 Sort the first elements of each pair => Insert sort
-*               Extract first elements: [3, 5, 7]
-*               Sorted first elements: [3, 5, 7]
-*
-*       #3 Merge the remaining elements = Insert sort
-*               Extract second elements: [8, 9]
-*               Merge second elements: [8, 9]
-*               Merge second elements to first elements: [3, 5, 7, 8, 9]
-*
-*/

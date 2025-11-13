@@ -6,7 +6,7 @@
 /*   By: uxmancis <uxmancis>                        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/28 18:22:43 by uxmancis          #+#    #+#             */
-/*   Updated: 2025/11/05 16:33:07 by uxmancis         ###   ########.fr       */
+/*   Updated: 2025/11/11 13:23:16 by uxmancis         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,6 +20,8 @@
 #include <string> //std::stoi
 #include <cstdlib> //std::stoi
 #include <climits> //INT_MAX, INT_MIN
+#include <iomanip> //std::fixed, std::setprecision (to print float with various decimals, std::cout not to cut it)
+#include <cstdlib> //EXIT_FAILURE
 
 #define GREEN "\033[32m"
 #define RED "\033[0m"
