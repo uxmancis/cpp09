@@ -47,7 +47,9 @@ struct sVector
 void putVector(std::vector<int> vector);
 
 /* PmergeMe.cpp*/
+void putPairs(std::vector<std::pair<int, int> > pairs, int rlevel, int mode);
 std::vector<int> fordJohnson(std::vector<int> input, int mode, unsigned int rlevel);
+void storePair (const std::vector<int> originalVector, std::vector<std::pair<int, int> > &originalPairs);
 
 
 
