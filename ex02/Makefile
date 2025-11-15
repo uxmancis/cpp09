@@ -3,10 +3,10 @@
 #                                                         :::      ::::::::    #
 #    Makefile                                           :+:      :+:    :+:    #
 #                                                     +:+ +:+         +:+      #
-#    By: uxmancis <uxmancis>                        +#+  +:+       +#+         #
+#    By: uxuemancisidorlaskurain <uxuemancisidor    +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2025/10/23 11:47:11 by uxmancis          #+#    #+#              #
-#    Updated: 2025/11/03 15:52:29 by uxmancis         ###   ########.fr        #
+#    Updated: 2025/11/15 13:16:38 by uxuemancisi      ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 

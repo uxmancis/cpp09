@@ -108,15 +108,13 @@ void putVector(std::vector<int> vector)
 
 int main(int argc, char **argv)
 {
-    int mode = SHOW_ALGORITHM; /* 🥊 Choose your fighter: EVALUATION or DEBUG */
+    int mode = SHOW_ALGORITHM; /* 🥊 Choose your fighter: EVALUATION or SHOW_ALGORITHM */
     
     if (!validateInput(argc, argv))
         return (EXIT_FAILURE);
 
     std::cout << "Before: ";
     putArgs(argc, argv);
-
-    // sVector sv; /*sv, Struct Vector */
 
     std::vector<int> originalVector;
     for (int i = 1; i < argc; i++)
@@ -125,16 +123,6 @@ int main(int argc, char **argv)
     std::cout << "Initial input container created: ";
     putVector(originalVector);
 
-    
-
-
-    /* Values' inizialization */
-    // sv.rlevel = 0;
-    // sv.groupBy = 1;
-    // sv.updatedVector = sv.originalVector;
-
-
-    
     unsigned int rlevel = 0;
     fordJohnson(originalVector, mode, rlevel);
 

@@ -156,6 +156,8 @@ void storePair (const std::vector<int> inputVector, std::vector<std::pair<int, i
     int singleElem = -5; /* no existent, initialization */
     bool isSingle = false;
 
+    (void) singleElem;
+
     if (!isEven((int)inputVector.size()))
         isSingle = true;
 
