@@ -1,6 +1,8 @@
 #include "PmergeMe.hpp"
 
-size_t gComparisons = 0;
+// size_t gComparisons = 0;
+size_t gVectorComparisons = 0;
+size_t gDequeComparisons = 0;
 
 bool isInt(char c)
 {
@@ -43,16 +45,6 @@ bool validSequence(int argc, char **argv)
     return (true);
 }
 
-bool areEqual(const std::vector<int> &vec, const std::deque<int> &deq)
-{
-    // Check if sizes are the same
-    if (vec.size() != deq.size())
-        return false;
-
-    // Use std::equal to compare elements
-    return std::equal(vec.begin(), vec.end(), deq.begin());
-}
-
 bool validateInput(int argc, char **argv)
 {
     if (argc == 1)
@@ -80,7 +72,9 @@ void putArgs(int argc, char **argv)
     std::cout << std::endl;
 }
 
-void putVector(std::vector<int> vector)
+
+template <typename T>
+void putContainer(T vector)
 {
     for (size_t i = 0; i < vector.size(); ++i)
     {
@@ -91,6 +85,21 @@ void putVector(std::vector<int> vector)
     }
     std::cout << std::endl;
 }
+/* Explicit instantiations: */
+template void putContainer<std::vector<int> >(std::vector<int> vector);
+template void putContainer<std::deque<int> >(std::deque<int> vector);
+
+// void putVector(std::vector<int> vector)
+// {
+//     for (size_t i = 0; i < vector.size(); ++i)
+//     {
+//         if (i + 1 == vector.size())
+//             std::cout << vector[i];
+//         else
+//             std::cout << vector[i] << ", "; /* ',' only when there are still more oponents */
+//     }
+//     std::cout << std::endl;
+// }
 
 
 /* F function calculates how many comparisons are needed to sort
@@ -109,6 +118,17 @@ int F(int n)
     return sum;
 }
 
+bool areEqual(const std::vector<int> &vec, const std::deque<int> &deq)
+{
+    // Check if sizes are the same
+    if (vec.size() != deq.size())
+        return false;
+
+    // Use std::equal to compare elements
+    return std::equal(vec.begin(), vec.end(), deq.begin());
+}
+
+
 /* Merge sort compares 100% of elements. E.g.:
 *       
 *       A = [1, 3, 4]   i = 0
@@ -126,7 +146,9 @@ int F(int n)
 */
 int main(int argc, char **argv)
 {
-    int mode = SHOW_ALGORITHM; /* 🥊 Choose your fighter: EVALUATION or SHOW_ALGORITHM */
+    int mode = EVALUATION; /* 🥊 Choose your fighter: EVALUATION or SHOW_ALGORITHM */
+    int container;
+    sTimeTaken timeTaken;
     
     if (!validateInput(argc, argv))
         return (EXIT_FAILURE);
@@ -134,18 +156,55 @@ int main(int argc, char **argv)
     std::cout << "Before: ";
     putArgs(argc, argv);
 
-    std::vector<int> originalVector;
-    for (int i = 1; i < argc; i++)
-        originalVector.push_back(atoi(argv[i]));
-
-    std::cout << "Initial input container created: ";
-    putVector(originalVector);
-
     unsigned int rlevel = 0;
-    fordJohnson(originalVector, mode, rlevel);
 
-    // if (mode == SHOW_ALGORITHM)
-        std::cout << "As size of sequence is " << originalVector.size() <<", then " << F(originalVector.size()) << " comparisons are needed to sort the sequence." << std::endl;
-        std::cout << "My implementation has made  " << gComparisons << " comparisons." << std::endl;
+    /********************************************* VECTOR *********************************************/
+    container = VECTOR;
+    std::vector<int> myVector;
+    for (int i = 1; i < argc; i++)
+        myVector.push_back(atoi(argv[i]));
+
+    if (mode == SHOW_ALGORITHM)
+    {
+        std::cout << "Initial input container created: ";
+        putContainer(myVector);
+    }
+        
+
+    myVector = fordJohnson(myVector, mode, rlevel, &timeTaken, container);
+
+
+
+    /********************************************* DEQUE *********************************************/
+    container = DEQUE;
+    std::deque<int> myDeque;
+    for (int i = 1; i < argc; i++)
+        myDeque.push_back(atoi(argv[i]));
+    
+    myDeque = fordJohnson(myDeque, mode, rlevel, &timeTaken, container);
+
+
+    /* Check result */
+    if (areEqual(myVector, myDeque))
+    {
+        std::cout << "After: ";
+        putContainer(myVector);
+    }
+    else
+    {
+        std::cerr << "Not same output, should not happen" << std::endl;
+        return (-1);
+    }
+
+    std::cout << "Time to process a range of " << myVector.size() << " elements with st::[..] : " << timeTaken.timeVector << " us" << std::endl;
+    std::cout << "Time to process a range of " << myDeque.size() << " elements with st::[..] : " << timeTaken.timeDeque << " us" << std::endl;
+
+
+    if (mode == SHOW_ALGORITHM)
+    {
+        std::cout << "As size of sequence is " << myVector.size() <<", then " << F(myVector.size()) << " comparisons are needed to sort the sequence." << std::endl;
+        std::cout << "My VECTOR implementation has made  " << gVectorComparisons << " comparisons." << std::endl;
+        std::cout << "My DEQUE implementation has made  " << gDequeComparisons << " comparisons." << std::endl;
+    }
     return (0);
 }

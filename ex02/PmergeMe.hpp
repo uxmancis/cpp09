@@ -27,7 +27,19 @@ enum{
     SHOW_ALGORITHM /* Show additional prints if chosen in main */
 };
 
-extern size_t gComparisons;
+enum{
+    DEQUE,
+    VECTOR /* Show additional prints if chosen in main */
+};
+
+extern size_t gVectorComparisons;
+extern size_t gDequeComparisons;
+
+struct sTimeTaken
+{
+    double timeVector;
+    double timeDeque;
+};
 
 struct sVector
 {
@@ -46,13 +58,21 @@ struct sVector
 };
 
 /* main.cpp */
-void putVector(std::vector<int> vector);
+template <typename T> void putContainer(T vector);
 
 /* PmergeMe.cpp*/
-void pendIntoMain (std::vector<int> *winners, std::vector<int> losers, int mode, int rlevel, std::vector<std::pair<int, int> > pair);
-void putPairs(std::vector<std::pair<int, int> > pairs, int rlevel, int mode);
-std::vector<int> fordJohnson(std::vector<int> input, int mode, unsigned int rlevel);
-void storePair (const std::vector<int> originalVector, std::vector<std::pair<int, int> > &originalPairs);
+// void pendIntoMain (std::vector<int> *winners, std::vector<int> losers, int mode, int rlevel, std::vector<std::pair<int, int> > pair);
+// void putPairs(std::vector<std::pair<int, int> > pairs, int rlevel, int mode);
+// // std::vector<int> fordJohnson(std::vector<int> input, int mode, unsigned int rlevel);
+// void storePair (const std::vector<int> originalVector, std::vector<std::pair<int, int> > &originalPairs);
+
+template <typename T> void putLevelAndInitialInput(T input, int rlevel, int mode);
+
+template <typename T> T fordJohnson (T input, int mode, unsigned int rlevel, sTimeTaken *timeTaken, int container);
+
+template <typename T> void putVectorAsPairs(T vector);
+
+template <typename T> void splitWinnersLosers(T input, T *winners, T *losers, int mode);
 
 
 
