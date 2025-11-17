@@ -27,6 +27,8 @@ enum{
     SHOW_ALGORITHM /* Show additional prints if chosen in main */
 };
 
+extern size_t gComparisons;
+
 struct sVector
 {
     std::vector<int> originalVector;
@@ -47,6 +49,7 @@ struct sVector
 void putVector(std::vector<int> vector);
 
 /* PmergeMe.cpp*/
+void pendIntoMain (std::vector<int> *winners, std::vector<int> losers, int mode, int rlevel, std::vector<std::pair<int, int> > pair);
 void putPairs(std::vector<std::pair<int, int> > pairs, int rlevel, int mode);
 std::vector<int> fordJohnson(std::vector<int> input, int mode, unsigned int rlevel);
 void storePair (const std::vector<int> originalVector, std::vector<std::pair<int, int> > &originalPairs);

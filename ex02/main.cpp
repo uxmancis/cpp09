@@ -1,5 +1,7 @@
 #include "PmergeMe.hpp"
 
+size_t gComparisons = 0;
+
 bool isInt(char c)
 {
     (void)c;
@@ -90,6 +92,23 @@ void putVector(std::vector<int> vector)
     std::cout << std::endl;
 }
 
+
+/* F function calculates how many comparisons are needed to sort
+*   sequence of n elements.
+*
+* Function src: https://dev.to/emuminov/human-explanation-and-step-by-step-visualisation-of-the-ford-johnson-algorithm-5g91
+*/
+#include <cmath>
+int F(int n)
+{
+    int sum = 0;
+    for (int k = 1; k <= n; ++k) {
+        double value = (3.0 / 4.0) * k;
+        sum += static_cast<int>(ceil(log2(value)));
+    }
+    return sum;
+}
+
 /* Merge sort compares 100% of elements. E.g.:
 *       
 *       A = [1, 3, 4]   i = 0
@@ -105,7 +124,6 @@ void putVector(std::vector<int> vector)
 *
 *
 */
-
 int main(int argc, char **argv)
 {
     int mode = SHOW_ALGORITHM; /* 🥊 Choose your fighter: EVALUATION or SHOW_ALGORITHM */
@@ -126,6 +144,8 @@ int main(int argc, char **argv)
     unsigned int rlevel = 0;
     fordJohnson(originalVector, mode, rlevel);
 
-    (void) mode;
+    // if (mode == SHOW_ALGORITHM)
+        std::cout << "As size of sequence is " << originalVector.size() <<", then " << F(originalVector.size()) << " comparisons are needed to sort the sequence." << std::endl;
+        std::cout << "My implementation has made  " << gComparisons << " comparisons." << std::endl;
     return (0);
 }

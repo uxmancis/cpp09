@@ -1,5 +1,23 @@
 #include "PmergeMe.hpp"
 
+/* getPairElem
+*
+*   Input: winnerElem, the element in winners sequence that we want to look up
+*   Return: its pair element in loser sequence
+**/
+int getPairElem(int winnerElem, const std::vector<std::pair<int, int> > pair)
+{
+    // std::cout << "inside getPairElem, winnerElem = " << winnerElem << std::endl;
+    for (int i = 0; i < (int)pair.size(); i++)
+    {
+        if (pair[i].first == winnerElem) //1st option
+            return (pair[i].second);
+        else if (pair[i].second == winnerElem) //2nd option
+            return (pair[i].first);
+    }
+    return (-2); /* this should not happen */
+}
+
 /* isMergePossible
 *
 *   Checks a hypothesis. Would it be possible to continue merging in next level?
@@ -113,7 +131,8 @@ void insertOddElem(const std::vector<int> src, std::vector<int> *dst)
 *          
 */
 
-std::vector<int> generateJacobsthalSequence(int n) {
+std::vector<int> generateJacobsthalSequence(int n, int mode)
+{
     std::vector<int> jacobsthal;
     if (n <= 0) return jacobsthal;
 
@@ -125,6 +144,11 @@ std::vector<int> generateJacobsthalSequence(int n) {
         int next = jacobsthal[i - 1] + 2 * jacobsthal[i - 2];
         if (next >= n) break; // Stop if the sequence exceeds the size of losers
         jacobsthal.push_back(next);
+    }
+    if (mode == SHOW_ALGORITHM)
+    {
+        std::cout << "        Jacobsthal sequence: ";
+        putVector(jacobsthal); // Assuming putVector prints a vector
     }
     return jacobsthal;
 }
@@ -215,9 +239,19 @@ void putResult(std::vector<int> winners, int mode)
     }
 }
 
-void pendIntoMain (std::vector<int> *winners, std::vector<int> losers, int mode, int rlevel)
+struct CountingCompare
+{
+    bool operator()(int a, int b) const
+    {
+        ++gComparisons;
+        return a < b;
+    }
+};
+
+void pendIntoMain (std::vector<int> *winners, std::vector<int> losers, int mode, int rlevel, std::vector<std::pair<int, int> > pair)
 {
     /* insert losers to winners: jacobstal, binarysearch */
+
     (void) rlevel;
     if (mode == SHOW_ALGORITHM)
         std::cout << "    > Let's put pend into main! (here, TODO!)" << std::endl;
@@ -232,17 +266,18 @@ void pendIntoMain (std::vector<int> *winners, std::vector<int> losers, int mode,
     else
     {
         /* Generate Jacobsthal sequence */
-        std::vector<int> jacobsthal = generateJacobsthalSequence(losers.size());
-        std::cout << "        Jacobsthal sequence: ";
-        putVector(jacobsthal); // Assuming putVector prints a vector
+        std::vector<int> jacobsthal = generateJacobsthalSequence(losers.size(), mode);
 
+        CountingCompare cmp;
+        
         /* Binary search I: Insert losers into winners using Jacobsthal sequence */
         std::vector<bool> inserted(losers.size(), false); // Track inserted elements
         for (std::vector<int>::iterator it = jacobsthal.begin(); it != jacobsthal.end(); ++it) {
             int index = *it;
             if (index < (int)losers.size() && !inserted[index]) {
                 int elem = losers[index];
-                std::vector<int>::iterator it = std::lower_bound((*winners).begin(), (*winners).end(), elem);
+                // std::vector<int>::iterator it = std::lower_bound((*winners).begin(), (*winners).end(), elem, cmp); //Next line is an optimization
+                std::vector<int>::iterator it = std::lower_bound((*winners).begin(), std::find((*winners).begin(), (*winners).end(), getPairElem(elem, pair)), elem, cmp);
                 (*winners).insert(it, elem);
                 inserted[index] = true;
             }
@@ -252,21 +287,10 @@ void pendIntoMain (std::vector<int> *winners, std::vector<int> losers, int mode,
         for (size_t k = 0; k < losers.size(); ++k) {
             if (!inserted[k]) {
                 int elem = losers[k];
-                std::vector<int>::iterator it = std::lower_bound((*winners).begin(), (*winners).end(), elem);
+                std::vector<int>::iterator it = std::lower_bound((*winners).begin(), (*winners).end(), elem, cmp);
                 (*winners).insert(it, elem);
             }
         }
-
-        /* Binary search: insert pend in main */
-        // for (size_t k = 0; k < losers.size(); ++k)
-        // {
-        //     int elem = losers[k];
-        //     std::vector<int>::iterator it = std::lower_bound(winners.begin(), winners.end(), elem);
-        //     winners.insert(it, elem);
-            
-        //     // count++;
-        // }
-
     }
     putResult(*winners, mode);
 
@@ -278,6 +302,7 @@ void sortPairsLocally(std::vector<int> *input, int mode)
     {
         if ((*input)[i] > (*input)[i+1])
             std::swap((*input)[i], (*input)[i+1]);
+        // gComparisons++;
     }
 
     if (mode == SHOW_ALGORITHM)
@@ -301,24 +326,6 @@ void putLevelAndInitialInput(std::vector<int> input, int rlevel, int mode)
     }
 }
 
-/* getPairElem
-*
-*   Input: winnerElem, the element in winners sequence that we want to look up
-*   Return: its pair element in loser sequence
-**/
-int getPairElem(int winnerElem, const std::vector<std::pair<int, int> > pair)
-{
-    // std::cout << "inside getPairElem, winnerElem = " << winnerElem << std::endl;
-    for (int i = 0; i < (int)pair.size(); i++)
-    {
-        if (pair[i].first == winnerElem) //1st option
-            return (pair[i].second);
-        else if (pair[i].second == winnerElem) //2nd option
-            return (pair[i].first);
-    }
-    return (-2); /* this should not happen */
-}
-
 /* hasPair2
 *
 *       Checks whether is winnerElem has or has NOT a pair checking in pair variable.
@@ -338,8 +345,8 @@ bool hasPair2(int winnerElem, const std::vector<std::pair<int, int> > pair)
     return (false);
 }
 
-void reorderLosers (const std::vector<int> winners, std::vector<int> *losers, 
-        const std::vector<std::pair<int, int> > pair, int rlevel, int mode)
+void putInfo(const std::vector<int> winners, const std::vector<int> losers, 
+    const std::vector<std::pair<int, int> > pair, int rlevel, int mode)
 {
     if (mode == SHOW_ALGORITHM)
     {
@@ -355,30 +362,53 @@ void reorderLosers (const std::vector<int> winners, std::vector<int> *losers,
 
         std::cout << PINK "    > Next step is to reorderLosers according to their winner pairs." RESET_COLOUR << std::endl;
         std::cout << "        (Before) Losers before being moved: ";
-        putVector(*losers);
+        putVector(losers);
     }
+}
 
-    /* Reorder losers (pend) */
-    (*losers).clear();
-    for(int i = 0; i < (int)winners.size(); i++)
-        (*losers).push_back(getPairElem(winners[i], pair)); /* according to their pair in winners (main)*/
-    
-    
+void putInfo2(std::vector<int> losers, int mode)
+{
     if (mode == SHOW_ALGORITHM)
     {
         std::cout << GREEN "        Losers (pend) ALREADY MOVED ACCORDING TO MAIN =  ";
-        putVector(*losers);
+        putVector(losers);
         std::cout << RESET_COLOUR << std::endl;
     }
-
-    (void) pair;
-    (void) winners;
-    (void) losers;
 }
 
-// sv.groupBy = sv.groupBy * 2; /* always pairs! https://medium.com/@mohammad.ali.ibrahim.525/ford-johnson-algorithm-merge-insertion-4b024f0c3d42 */
+/* Losers are moved according to its pair in winners (sorted) */
+void reorderLosers (const std::vector<int> winners, std::vector<int> *losers, 
+        const std::vector<std::pair<int, int> > pair, int rlevel, int mode)
+{
+    putInfo(winners, *losers, pair, rlevel, mode);
+
+
+    bool isSingle = false;
+    int singleElem = -2;
+    /* Single element is stored in case it exists */
+    if (losers->size() == winners.size() + 1)
+    {
+        isSingle = true;
+        singleElem = (*losers)[losers->size() - 1]; /* singleElem, element in last position, size -1 */
+        // std::cout << "singleElem = " << singleElem << std::endl;
+    }
+        
+    /* New positions for elements in losers according to their pair in winner */
+    (*losers).clear();
+    for(int i = 0; i < (int)winners.size(); i++)
+        (*losers).push_back(getPairElem(winners[i], pair)); /* according to their pair in winners (main)*/
+    if (isSingle == true && singleElem!= -2) /* single Elem is pushed back if exists*/
+        (*losers).push_back(singleElem);
+
+    putInfo2(*losers, mode);
+}
+
+/* always pairs! https://medium.com/@mohammad.ali.ibrahim.525/ford-johnson-algorithm-merge-insertion-4b024f0c3d42 */
 std::vector<int> fordJohnson(std::vector<int> input, int mode, unsigned int rlevel)
 {
+    /* ⏱️ Start measuring time */
+    clock_t startTimeVector = clock();
+    
     rlevel++;
     putLevelAndInitialInput(input, rlevel, mode); /* show initial state: ⭐ Level | Input in GREEN*/
     
@@ -397,8 +427,6 @@ std::vector<int> fordJohnson(std::vector<int> input, int mode, unsigned int rlev
         std::vector<int> losers; /* also called 'pend' */
         splitWinnersLosers(input, &winners, &losers, mode);
 
-        /* I think nothing else should happen here */
-
         /* #2 Recursively sort Winners*/
         winners = fordJohnson(winners, mode, rlevel);
 
@@ -406,220 +434,22 @@ std::vector<int> fordJohnson(std::vector<int> input, int mode, unsigned int rlev
         reorderLosers(winners, &losers, newPair, rlevel, mode);
 
         /* #4 Put Pend (Losers) into Main (Winners)*/
-        pendIntoMain(&winners, losers, mode, rlevel);
+        pendIntoMain(&winners, losers, mode, rlevel, newPair);
 
         return (winners); /* result */
     }
     else
-        std::cout << RED "<<< No more recursion>>> " RESET_COLOUR << std::endl << std::endl; /* when 'Noo more recursion' hits, then "...we continue in Level will be executed n times pending"*/
+    {
+        if (mode == SHOW_ALGORITHM)
+            std::cout << RED "<<< No more recursion>>> " RESET_COLOUR << std::endl << std::endl; /* when 'Noo more recursion' hits, then "...we continue in Level will be executed n times pending"*/
+    }
 
+    /* ⏱️ Stock measuring time */
+    clock_t endTimeVector = clock();
+    /* ⏱️ Calculate elapsed time in microseconds */
+    double timeTakenVector = static_cast<double> (endTimeVector - startTimeVector) * 1000000.0 / CLOCKS_PER_SEC;
+
+    std::cout << "Time to proocess a range of " << input.size() << " elements with st::[..] : " << timeTakenVector << " us" << std::endl;
 
     return (input); /* not necessary, just becausee we have to return something :)*/
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-/************************************************************************************************************************************************************************************************************** */
-
-// void putVectorPair(std::vector<std::pair<int, int> > MyVector)
-// {
-//     for (size_t i = 0; i < MyVector.size(); ++i)
-//         std::cout << "(" << MyVector[i].first << ", " << MyVector[i].second << ") ";
-//     std::cout << std::endl;
-// }
-
-// /*
-// *   sv: struct vector that contains all needed info to sort vector
-// *
-// */
-// std::vector<int> fordJohnson(sVector &sv, int mode)
-// {
-//     (void) mode;
-
-//     /* ----- #1 make pairs --------------------------------------------------------------------------------*/
-//     size_t size = sv.inputSecond.size();
-
-//     if (size <= 1) /* Already sorted */
-//         return (sv.inputSecond);
-
-//     std::cout << YELLOW "Letsgo! " << std::endl;
-//     std::cout << "> First: ";
-//     putVector(sv.inputFirst);
-//     std::cout << "> Second: ";
-//     putVector(sv.inputSecond);
-//     std::cout << RESET_COLOUR << std::endl;
-
-//     int first;
-//     int second;
-//     for (int i = 0; i < (int) size; i+=2)
-//     {
-//         first = sv.inputSecond[i];
-//         if (i + 1 < (int)size)
-//             second = sv.inputSecond[i + 1];
-//         else
-//             second = -1; /* Unpaired element */
-//         sv.pairs.push_back(std::make_pair(first, second)); /* first and second both share index :) */
-//     }
-//     sv.inputSecond.clear();
-//     std::cout << "#1 Pairs created: ";
-//     putVectorPair(sv.pairs);
-
-
-
-
-//     /* ----- #2 sort pairs --------------------------------------------------------------------------------*/
-//     for (size_t i = 0; i < sv.pairs.size(); ++i)
-//     {
-//         // Ensure the pair is in ascending order
-//         if (sv.pairs[i].first > sv.pairs[i].second && sv.pairs[i].second != -1) /* Don't swap when number missing (-1)*/
-//         {
-//             std::swap(sv.pairs[i].first, sv.pairs[i].second);
-//         }
-//     }
-//     std::cout << "#2 Pairs sorted: ";
-//     putVectorPair(sv.pairs);
-
-
-
-//     // ----- #3 Split: create 2 sequences: ------------------------------------------------------------------------*/
-//     for (size_t i = 0; i < sv.pairs.size(); i++)
-//     {
-//         sv.inputFirst.push_back(sv.pairs[i].first); 
-//         sv.inputSecond.push_back(sv.pairs[i].second); 
-//     }
-//     // std::cout << "#3 Splitted sequences created: " << std::endl;
-//     // std::cout << "> First: ";
-//     // putVector(sv.inputFirst);
-//     // std::cout << "> Second: ";
-//     // putVector(sv.inputSecond);
-
-    
-
-//     //#4 Sort Second, recursively
-//     std::cout << CYAN "SPLIT DONE - Before calling recursivity! " << std::endl;
-//     std::cout << "> First: ";
-//     putVector(sv.inputFirst);
-//     std::cout << "> Second: ";
-//     putVector(sv.inputSecond);
-//     std::cout << RESET_COLOUR << std::endl;
-
-//     if (sv.inputSecond.size() > 1)
-//     {
-//         sVector tempSv;
-//         tempSv.inputSecond = sv.inputSecond;
-//         tempSv.inputFirst.clear();
-//         tempSv.pairs.clear();
-        
-//         tempSv.inputSecond = fordJohnson(tempSv, mode);
-
-//         sv.inputSecond = tempSv.inputSecond;
-//     }
-   
-//     std::cout << GREEN "COMPLETED Recursivity" RESET_COLOUR << std::endl;
-
-//     // std::sort(sv.inputSecond.begin(), sv.inputSecond.end());
-
-//     //#5 Put rest of numbers into already sorted Second sequence
-//     //Jacobstal
-//     //Binary search: implemented using std::lower_bound
-
-//     // std::cout << "size of First = " << sv.inputFirst.size() << std::endl;
-//     for (size_t i = 0; i < sv.inputFirst.size(); i++)
-//     {
-//         int elem = sv.inputFirst[i];
-//         std::vector<int>::iterator it = std::lower_bound(sv.inputSecond.begin(), sv.inputSecond.end(), elem);
-//         sv.inputSecond.insert(it, elem);
-//     }
-//     std::cout << "#5 Rest elements in First inserted into Second (already sorted): " << std::endl;
-//     std::cout << "> First: ";
-//     putVector(sv.inputFirst);
-//     std::cout << "> Second: ";
-//     putVector(sv.inputSecond);
-
-//     // (void) mode;
-
-//     return(sv.inputFirst);
-// }
